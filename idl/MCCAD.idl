@@ -1,0 +1,248 @@
+// Copyright (C) 2014-2015  KIT-INR/NK
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+//
+
+
+#ifndef __MCCAD_GEN__
+#define __MCCAD_GEN__
+
+#include "SALOME_Component.idl"
+#include "SALOME_Exception.idl"
+#include "SALOMEDS.idl"
+#include "MEDCouplingCorbaServant.idl"
+
+
+
+module MCCAD_ORB
+{
+
+//a part contains one or more solid, and has only one material
+typedef double MColor[3];
+typedef double FixArray[3];
+
+    interface BaseObj
+    {
+        string  getName();
+        void    setName(in string Name);
+        long    getID();
+        string  getRemark();
+        void    setRemark(in string Name);
+        SALOMEDS::TMPFile getShapeStream();
+        //get shape for used in the same host only
+        long long   getShapePointer();
+        void    getColor(out MColor aColor);
+        void    setColor(in MColor aColor);
+    };
+
+    typedef sequence<BaseObj> BaseObjList;
+
+    interface Part : BaseObj
+    {
+//        string  getName();
+//        void    setName(in string Name);
+//        long    getID();
+//        string  getDescription();
+//        void    setDescription(in string Name);
+        void    setShapeStream(in SALOMEDS::TMPFile aShapeStream );
+//        SALOMEDS::TMPFile getShapeStream();
+        //get shape for used in the same host only
+//        long long   getShapePointer();
+
+        void    recoverShape ();
+        void    setIsDecomposed(in boolean isDecompsed );
+        boolean getIsDecomposed();
+
+        void    setMesh(in SALOME_MED::MEDCouplingUMeshCorbaInterface aMesh);
+        SALOME_MED::MEDCouplingUMeshCorbaInterface  getMesh();
+        void     clearMesh();
+        void     setImportance(in FixArray aIMP);
+        FixArray     getImportance();
+        string  getAdditive();
+        void    setAdditive(in string aAdditive);
+
+        double  getVolume();
+        double  getMeshVolume();
+
+        boolean    hasBackupShape();
+        boolean    hasMesh();
+        boolean    isExplodible();
+
+    };
+
+//material for parts
+
+
+    interface Material
+    {
+        string  getName();
+        void    setName(in string Name);
+        long    getID();
+        void    setID(in long id);
+        double  getDensity();
+        void    setDensity(in double aDensity);
+        string  getMatCard();
+        void    setMatCard(in string MatCard);
+        void    getColor(out MColor aColor);
+        void    setColor(in MColor aColor);
+
+
+    };
+
+
+    typedef sequence<Part> PartList;
+
+//Material group, grouping the parts with the same material in a component
+    interface Group : BaseObj
+    {
+//        string  getName();
+//        void    setName(in string Name);
+//        long    getID();
+        PartList    getPartList();
+        boolean setPartList(in PartList aPartList);
+        Material getMaterial();
+        long     getMaterialID();
+        void    setMaterial(in Material aMaterial);
+        Part    getPart(in long PartID) ;
+        boolean appendPart(in Part aPart);
+        boolean deletePart(in long  PartID);
+        boolean insertPart(in Part aPart, in long PartID);
+        boolean clearParts();
+        //append parts in the index group to this
+        void    appendPartInGroup (in Group aGroup);
+        //get all the shape in this group, return as a COMPOUND
+//        SALOMEDS::TMPFile getShapeStream();
+        //get shape for used in the same host only
+//        long long   getShapePointer();
+
+        boolean hasMaterial();
+        long    getNumParts();
+
+    };
+
+
+    typedef sequence<Group> GroupList;
+
+//Geometry Components grouping the material groups to become a component
+//Naming to Component because Component clashes with CORBA Key word:Component
+    interface Component : BaseObj
+    {
+//        string  getName();
+//        void    setName(in string Name);
+//        long    getID();
+        GroupList    getGroupList();
+        boolean setGroupList(in GroupList aGroupList);
+//        Group    generateGroup(in string Name);
+        Group   getGroup(in long GroupID) ;
+        boolean appendGroup(in Group aGroup);
+        boolean deleteGroup(in long  GroupID);
+        boolean insertGroup(in Group aGroup, in long GroupID);
+        boolean clearGroups();
+        //append group in the index component to this
+        void    appendGroupInComponent (in Component aComponent);
+        //get all the shape in this component, return as a COMPOUND
+//        SALOMEDS::TMPFile getShapeStream();
+        //get shape for used in the same host only
+//        long long   getShapePointer();
+        void    setEnvelopStream(in SALOMEDS::TMPFile aShapeStream);
+        SALOMEDS::TMPFile getEnvelopStream();
+        long long getEnvelopPointer();
+        boolean    hasEnvelop();
+        void    clearEnvelop();
+        long    getNumParts();
+        long    getNumGroups();
+
+
+    };
+
+
+    typedef sequence<Component> ComponentList;
+    typedef sequence<Material> MaterialList;
+
+    interface MCCAD_Gen : Engines::EngineComponent
+    {
+
+        //set a Component list data in into the study
+        boolean     setData ( in long studyID, in ComponentList theData);
+        ComponentList   getData ( in long studyID) ;
+        MaterialList    getMaterialList(in long studyID) ;
+
+        //generate an empty Component
+        Component    generateComponent(in string Name)                                       raises (SALOME::SALOME_Exception);
+        //generate an empty Material Group
+        Group       generateGroup(in string Name)                                               raises (SALOME::SALOME_Exception);
+        //generate a Part
+        Part        generatePart(in string Name)                                            raises (SALOME::SALOME_Exception);
+        //generate a material
+        Material        generateMaterial(in string Name, in long MaterialID, in long studyID )                                      raises (SALOME::SALOME_Exception);
+        //get Component according to the id;
+        Component    getComponent(in long studyID, in long ComponentID);
+        //get an  Material Group
+        Group       getGroup(in long studyID, in long GroupID)                                               raises (SALOME::SALOME_Exception);
+        //get a Part according to the Component ID, Group ID and Part ID
+        Part        getPart(in long studyID, in long PartID);
+        //get a material
+        Material    getMaterial ( in long studyID, in long MaterialID);
+        //deep copy of a Part
+        Part        deepCopyPart(in Part aPart)                                         raises (SALOME::SALOME_Exception);
+        Group        deepCopyGroup(in Group aGroup)                                         raises (SALOME::SALOME_Exception);
+        //append a Component to the end of the Component list in this Stduy
+        boolean     appendComponent(in long studyID, in Component aComponent);//                   raises (SALOME::SALOME_Exception);
+        //insert a Part before Part with ID = ComponentID;
+        boolean     insertComponent (in long studyID,  in Component aComponent, in long  ComponentID);//raises (SALOME::SALOME_Exception);
+         //delete the Part according to the id
+        boolean     deleteComponent (in long studyID,  in long  ComponentID);//                    raises (SALOME::SALOME_Exception);
+        //clear all Component
+        boolean     clearComponent(in long studyID);
+        //append a Material to the end of the Material list in this Stduy
+        boolean     appendMaterial(in long studyID, in Material aMaterial);//                   raises (SALOME::SALOME_Exception);
+         //delete the material according to the id
+        boolean     deleteMaterial (in long studyID,  in long  MaterialID);//                    raises (SALOME::SALOME_Exception);
+
+        //get all the shape in this study, return as a COMPOUND
+        SALOMEDS::TMPFile getShapeStream(in long studyID);
+        //get shape for used in the same host only
+        long long   getShapePointer(in long studyID);
+        //import OCC Geometry files, include brep, step, iges format, ifExplode is true end explode compound
+//        PartList    ImportGeom(in string FileName, in boolean ifExplode)    raises (SALOME::SALOME_Exception);
+        PartList    ImportGeom(in string FileName)    raises (SALOME::SALOME_Exception);
+        PartList    explodePart(in Part aPart)    raises (SALOME::SALOME_Exception);
+        Part        fuseParts(in PartList aPartList, in string aName)    raises (SALOME::SALOME_Exception);
+        boolean     decomposePart(in Part aPart);
+        boolean     decomposeEnvelop(in Component aComponent);
+        //import MED file
+        SALOME_MED::MEDCouplingUMeshCorbaInterface  importMED(in string MEDFileName)  raises (SALOME::SALOME_Exception);
+        void        export2MED(in SALOME_MED::MEDCouplingUMeshCorbaInterface aMesh, in string FileName) raises (SALOME::SALOME_Exception);
+        //export all mesh assigned to the part to a abaqus file
+        void        exportAllMesh2Abaqus (in long studyID, in string FileName) raises (SALOME::SALOME_Exception);
+//        void        unittest();
+
+        //generate tetrahedral mesh using Tetgen
+        boolean     generateTetgenMesh(in Part aPart, in double aDeflection, in double aCoefficient, in double aMeshQuality) raises (SALOME::SALOME_Exception);
+        boolean     generateNetgenMesh(in Part aPart, in double aDeflection, in double aCoefficient) raises (SALOME::SALOME_Exception);
+
+        //export geometry to brep/step/iges file
+        void        exportGeom(in BaseObjList aBaseObjList, in string FileName);
+
+
+
+
+
+    };
+
+};
+
+#endif

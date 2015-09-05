@@ -1,0 +1,9 @@
+#ifndef _McCadCSGGeom_Surface_HeaderFile
+#include <McCadCSGGeom_Surface.hxx>
+#endif
+#ifndef _TCollection_AsciiString_HeaderFile
+#include <TCollection_AsciiString.hxx>
+#endif
+#ifndef _McCadMcRead_SurfaceFactory_HeaderFile
+#include <McCadMcRead_SurfaceFactory.hxx>
+#endif

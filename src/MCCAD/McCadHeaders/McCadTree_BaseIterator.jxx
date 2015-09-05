@@ -1,0 +1,6 @@
+#ifndef _McCadTree_SiblIterator_HeaderFile
+#include <McCadTree_SiblIterator.hxx>
+#endif
+#ifndef _McCadTree_BaseIterator_HeaderFile
+#include <McCadTree_BaseIterator.hxx>
+#endif

@@ -1,0 +1,30 @@
+#ifndef _TopoDS_Shape_HeaderFile
+#include <TopoDS_Shape.hxx>
+#endif
+#ifndef _gp_Pnt_HeaderFile
+#include <gp_Pnt.hxx>
+#endif
+#ifndef _McCadCSGGeom_Surface_HeaderFile
+#include <McCadCSGGeom_Surface.hxx>
+#endif
+#ifndef _GeomAdaptor_Surface_HeaderFile
+#include <GeomAdaptor_Surface.hxx>
+#endif
+#ifndef _TopoDS_Face_HeaderFile
+#include <TopoDS_Face.hxx>
+#endif
+#ifndef _McCadDiscDs_HSequenceOfDiscFace_HeaderFile
+#include <McCadDiscDs_HSequenceOfDiscFace.hxx>
+#endif
+#ifndef _TopTools_HSequenceOfShape_HeaderFile
+#include <TopTools_HSequenceOfShape.hxx>
+#endif
+#ifndef _TopoDS_Solid_HeaderFile
+#include <TopoDS_Solid.hxx>
+#endif
+#ifndef _McCadDiscDs_DiscFace_HeaderFile
+#include <McCadDiscDs_DiscFace.hxx>
+#endif
+#ifndef _McCadMcVoid_HeaderFile
+#include <McCadMcVoid.hxx>
+#endif

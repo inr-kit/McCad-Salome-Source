@@ -1,0 +1,6 @@
+#ifndef _TopoDS_Shell_HeaderFile
+#include <TopoDS_Shell.hxx>
+#endif
+#ifndef _McCadCSGAdapt_ShellAnalyser_HeaderFile
+#include <McCadCSGAdapt_ShellAnalyser.hxx>
+#endif

@@ -1,0 +1,12 @@
+#ifndef _McCadCSGGeom_Transformation_HeaderFile
+#include <McCadCSGGeom_Transformation.hxx>
+#endif
+#ifndef _TCollection_AsciiString_HeaderFile
+#include <TCollection_AsciiString.hxx>
+#endif
+#ifndef _TColStd_HSequenceOfReal_HeaderFile
+#include <TColStd_HSequenceOfReal.hxx>
+#endif
+#ifndef _McCadMcRead_TrsfBuilder_HeaderFile
+#include <McCadMcRead_TrsfBuilder.hxx>
+#endif

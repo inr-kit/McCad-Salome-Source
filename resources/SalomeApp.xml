@@ -1,0 +1,85 @@
+<!--
+  Copyright (C) 2007-2013  CEA/DEN, EDF R&D, OPEN CASCADE
+
+  This library is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 2.1 of the License.
+
+  This library is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public
+  License along with this library; if not, write to the Free Software
+  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+
+  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+
+-->
+<document>
+  <section name="MCCAD">
+    <!-- Major module parameters -->
+    <parameter name="name" value="MCCAD"/>
+    <parameter name="icon" value="MCCAD.png"/>
+    <parameter name="version" value="0.3.0"/>
+    <!-- Graphic preferences -->
+    <parameter name="display_mode"        value="2"  />
+    <parameter name="shading_color"       value="#a7a7a7" />
+    <parameter name="edges_in_shading_color" value="#000000" />
+    <parameter name="wireframe_color"     value="255, 255, 0" />
+    <parameter name="free_bound_color"    value="0, 255, 0" />
+    <parameter name="line_color"          value="255, 0, 0" />
+    <parameter name="point_color"         value="#ff7700" />
+    <parameter name="isos_color"          value="200, 200, 200" />
+    <parameter name="toplevel_color"      value="170, 85, 0" />
+    <parameter name="toplevel_dm"         value="0" />
+    <parameter name="edge_width"          value="1" />
+    <parameter name="isolines_width"      value="1" />
+    <parameter name="preview_edge_width"  value="1" />
+    <parameter name="iso_number_u"        value="0" />
+    <parameter name="iso_number_v"        value="0" />
+    <!-- MCCAD Conversion preferences -->
+    <parameter name="target_code"                     value="0"/>
+    <parameter name="init_cell_no"                    value="1"/>
+    <parameter name="init_surf_no"                    value="1"/>
+    <parameter name="min_solid_vol"                   value="1.00"/>
+    <parameter name="min_void_vol"                    value="1.25e2"/>
+    <parameter name="min_dec_face_area"               value="50"/>
+    <parameter name="min_compl_cell"                  value="10"/>
+    <parameter name="min_pre_dec_cell"                value="100"/>
+    <parameter name="min_redec_face_area"             value="2"/>
+    <parameter name="min_sample_points"               value="50"/>
+    <parameter name="max_sample_points"               value="100"/>
+    <parameter name="x_resl"                          value="0.001"/>
+    <parameter name="y_resl"                          value="0.001"/>
+    <parameter name="r_resl"                          value="0.00314"/>
+    <parameter name="max_dec_depth"                   value="15"/>
+    <parameter name="max_cell_exp_depth"              value="500"/>
+    <parameter name="Tolerance"                       value="1.0e-4"/>
+    <parameter name="write_disc_file"                 value="true"/>
+    <parameter name="write_disc_model"                value="true"/>
+    <parameter name="gen_void"                        value="true"/>
+    <parameter name="force_decomp"                    value="true"/>
+    <!-- MCNP6 Conversion preferences -->
+    <parameter name="init_pseudo_cell_no"             value="90000"/>
+    <parameter name="embed_card_no"                   value="2"/>
+    <parameter name="MeshType"                        value="0"/>
+    <parameter name="EeoutFileType"                   value="1"/>
+    <parameter name="OverlapTreat"                    value="2"/>
+    <parameter name="LengthFactor"                    value="0.1"/>
+    <!-- Tetrahedral mesh generation preferences -->
+    <parameter name="meshing_engine"                     value="0"/>
+    <parameter name="STL_Deflection"                  value="0.001"/>
+    <parameter name="STL_Coefficient"                 value="0.01"/>
+    <parameter name="Tet_MeshQuality"                 value="2.0"/>
+    <parameter name="Mesh_Volume_Diff"                value="0.01"/>
+  </section>
+  <section name="resources">
+    <!-- Module resources -->
+    <parameter name="MCCAD" value="%MCCAD_ROOT_DIR%/share/salome/resources/mccad"/>
+  </section>
+  <section name="McCad" >
+  </section>
+</document>

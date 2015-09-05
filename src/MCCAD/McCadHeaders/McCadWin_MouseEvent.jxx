@@ -1,0 +1,3 @@
+#ifndef _McCadWin_MouseEvent_HeaderFile
+#include <McCadWin_MouseEvent.hxx>
+#endif

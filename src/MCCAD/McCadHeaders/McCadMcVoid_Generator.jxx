@@ -1,0 +1,15 @@
+#ifndef _McCadDiscDs_HSequenceOfDiscSolid_HeaderFile
+#include <McCadDiscDs_HSequenceOfDiscSolid.hxx>
+#endif
+#ifndef _TopoDS_Shape_HeaderFile
+#include <TopoDS_Shape.hxx>
+#endif
+#ifndef _TopTools_HSequenceOfShape_HeaderFile
+#include <TopTools_HSequenceOfShape.hxx>
+#endif
+#ifndef _McCadDiscDs_HSequenceOfDiscFace_HeaderFile
+#include <McCadDiscDs_HSequenceOfDiscFace.hxx>
+#endif
+#ifndef _McCadMcVoid_Generator_HeaderFile
+#include <McCadMcVoid_Generator.hxx>
+#endif

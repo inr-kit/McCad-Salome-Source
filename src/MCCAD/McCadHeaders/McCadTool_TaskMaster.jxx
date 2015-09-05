@@ -1,0 +1,15 @@
+#ifndef _McCadCom_CasView_HeaderFile
+#include <McCadCom_CasView.hxx>
+#endif
+#ifndef _McCadTool_Task_HeaderFile
+#include <McCadTool_Task.hxx>
+#endif
+#ifndef _McCadTool_TaskHistory_HeaderFile
+#include <McCadTool_TaskHistory.hxx>
+#endif
+#ifndef _McCadWin_MouseEvent_HeaderFile
+#include <McCadWin_MouseEvent.hxx>
+#endif
+#ifndef _McCadTool_TaskMaster_HeaderFile
+#include <McCadTool_TaskMaster.hxx>
+#endif

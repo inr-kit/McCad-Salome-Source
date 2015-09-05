@@ -1,0 +1,18 @@
+#ifndef _OSD_File_HeaderFile
+#include <OSD_File.hxx>
+#endif
+#ifndef _TCollection_AsciiString_HeaderFile
+#include <TCollection_AsciiString.hxx>
+#endif
+#ifndef _McCadMcRead_DataMapOfIntegerCell_HeaderFile
+#include <McCadMcRead_DataMapOfIntegerCell.hxx>
+#endif
+#ifndef _McCadCSGGeom_DataMapOfIntegerSurface_HeaderFile
+#include <McCadCSGGeom_DataMapOfIntegerSurface.hxx>
+#endif
+#ifndef _McCadCSGGeom_DataMapOfIntegerTransformation_HeaderFile
+#include <McCadCSGGeom_DataMapOfIntegerTransformation.hxx>
+#endif
+#ifndef _McCadMcRead_Reader_HeaderFile
+#include <McCadMcRead_Reader.hxx>
+#endif

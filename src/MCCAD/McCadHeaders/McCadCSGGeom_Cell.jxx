@@ -1,0 +1,18 @@
+#ifndef _TColStd_HSequenceOfAsciiString_HeaderFile
+#include <TColStd_HSequenceOfAsciiString.hxx>
+#endif
+#ifndef _TColStd_HSequenceOfInteger_HeaderFile
+#include <TColStd_HSequenceOfInteger.hxx>
+#endif
+#ifndef _McCadCSGGeom_DataMapOfIntegerSurface_HeaderFile
+#include <McCadCSGGeom_DataMapOfIntegerSurface.hxx>
+#endif
+#ifndef _McCadCSGGeom_DataMapIteratorOfDataMapOfIntegerSurface_HeaderFile
+#include <McCadCSGGeom_DataMapIteratorOfDataMapOfIntegerSurface.hxx>
+#endif
+#ifndef _TCollection_AsciiString_HeaderFile
+#include <TCollection_AsciiString.hxx>
+#endif
+#ifndef _McCadCSGGeom_Cell_HeaderFile
+#include <McCadCSGGeom_Cell.hxx>
+#endif

@@ -1,0 +1,15 @@
+#ifndef _McCadTDS_ExtFace_HeaderFile
+#include <McCadTDS_ExtFace.hxx>
+#endif
+#ifndef _McCadTDS_HSequenceOfExtFace_HeaderFile
+#include <McCadTDS_HSequenceOfExtFace.hxx>
+#endif
+#ifndef _TColgp_HSequenceOfPnt_HeaderFile
+#include <TColgp_HSequenceOfPnt.hxx>
+#endif
+#ifndef _TopoDS_Solid_HeaderFile
+#include <TopoDS_Solid.hxx>
+#endif
+#ifndef _McCadCSGTool_SignCheck_HeaderFile
+#include <McCadCSGTool_SignCheck.hxx>
+#endif

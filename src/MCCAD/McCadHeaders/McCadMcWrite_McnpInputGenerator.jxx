@@ -1,0 +1,15 @@
+#ifndef _TColStd_HSequenceOfAsciiString_HeaderFile
+#include <TColStd_HSequenceOfAsciiString.hxx>
+#endif
+#ifndef _McCadCSGGeom_HSequenceOfCell_HeaderFile
+#include <McCadCSGGeom_HSequenceOfCell.hxx>
+#endif
+#ifndef _TCollection_AsciiString_HeaderFile
+#include <TCollection_AsciiString.hxx>
+#endif
+#ifndef _OSD_File_HeaderFile
+#include <OSD_File.hxx>
+#endif
+#ifndef _McCadMcWrite_McnpInputGenerator_HeaderFile
+#include <McCadMcWrite_McnpInputGenerator.hxx>
+#endif

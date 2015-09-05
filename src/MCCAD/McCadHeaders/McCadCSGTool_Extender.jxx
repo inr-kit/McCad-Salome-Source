@@ -1,0 +1,9 @@
+#ifndef _McCadTDS_ExtSolid_HeaderFile
+#include <McCadTDS_ExtSolid.hxx>
+#endif
+#ifndef _TopoDS_Solid_HeaderFile
+#include <TopoDS_Solid.hxx>
+#endif
+#ifndef _McCadCSGTool_Extender_HeaderFile
+#include <McCadCSGTool_Extender.hxx>
+#endif

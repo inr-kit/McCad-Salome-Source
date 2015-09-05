@@ -1,0 +1,6 @@
+#ifndef _McCadTDS_PsSolid_HeaderFile
+#include <McCadTDS_PsSolid.hxx>
+#endif
+#ifndef _McCadPsCSGTool_Voxelizer_HeaderFile
+#include <McCadPsCSGTool_Voxelizer.hxx>
+#endif

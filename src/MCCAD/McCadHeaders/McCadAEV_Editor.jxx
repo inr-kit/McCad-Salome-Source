@@ -1,0 +1,6 @@
+#ifndef _McCadCom_Document_HeaderFile
+#include <McCadCom_Document.hxx>
+#endif
+#ifndef _McCadAEV_Editor_HeaderFile
+#include <McCadAEV_Editor.hxx>
+#endif

@@ -1,0 +1,6 @@
+#ifndef _McCadTDS_PsSolid_HeaderFile
+#include <McCadTDS_PsSolid.hxx>
+#endif
+#ifndef _McCadPsCSGTool_Extender_HeaderFile
+#include <McCadPsCSGTool_Extender.hxx>
+#endif

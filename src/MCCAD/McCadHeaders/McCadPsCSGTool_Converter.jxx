@@ -1,0 +1,15 @@
+#ifndef _McCadTDS_HSequenceOfCutFace_HeaderFile
+#include <McCadTDS_HSequenceOfCutFace.hxx>
+#endif
+#ifndef _McCadTDS_HSequenceOfPsSolid_HeaderFile
+#include <McCadTDS_HSequenceOfPsSolid.hxx>
+#endif
+#ifndef _TopoDS_Solid_HeaderFile
+#include <TopoDS_Solid.hxx>
+#endif
+#ifndef _McCadTDS_PsSolid_HeaderFile
+#include <McCadTDS_PsSolid.hxx>
+#endif
+#ifndef _McCadPsCSGTool_Converter_HeaderFile
+#include <McCadPsCSGTool_Converter.hxx>
+#endif

@@ -1,0 +1,6 @@
+#ifndef _McCadCom_Document_HeaderFile
+#include <McCadCom_Document.hxx>
+#endif
+#ifndef _McCadCom_View_HeaderFile
+#include <McCadCom_View.hxx>
+#endif

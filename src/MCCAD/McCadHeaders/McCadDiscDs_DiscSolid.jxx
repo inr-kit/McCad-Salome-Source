@@ -1,0 +1,24 @@
+#ifndef _TColgp_HSequenceOfPnt_HeaderFile
+#include <TColgp_HSequenceOfPnt.hxx>
+#endif
+#ifndef _McCadDiscDs_HSequenceOfDiscFace_HeaderFile
+#include <McCadDiscDs_HSequenceOfDiscFace.hxx>
+#endif
+#ifndef _TColStd_HSequenceOfInteger_HeaderFile
+#include <TColStd_HSequenceOfInteger.hxx>
+#endif
+#ifndef _TopoDS_Shape_HeaderFile
+#include <TopoDS_Shape.hxx>
+#endif
+#ifndef _TCollection_AsciiString_HeaderFile
+#include <TCollection_AsciiString.hxx>
+#endif
+#ifndef _Bnd_Box_HeaderFile
+#include <Bnd_Box.hxx>
+#endif
+#ifndef _McCadDiscDs_DiscFace_HeaderFile
+#include <McCadDiscDs_DiscFace.hxx>
+#endif
+#ifndef _McCadDiscDs_DiscSolid_HeaderFile
+#include <McCadDiscDs_DiscSolid.hxx>
+#endif

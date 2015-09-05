@@ -1,0 +1,6 @@
+#ifndef _McCadDiscDs_DiscSolid_HeaderFile
+#include <McCadDiscDs_DiscSolid.hxx>
+#endif
+#ifndef _McCadDiscretization_Solid_HeaderFile
+#include <McCadDiscretization_Solid.hxx>
+#endif

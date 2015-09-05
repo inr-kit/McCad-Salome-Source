@@ -1,0 +1,9 @@
+#ifndef _McCadTDS_HSequenceOfExtSolid_HeaderFile
+#include <McCadTDS_HSequenceOfExtSolid.hxx>
+#endif
+#ifndef _McCadCSGGeom_Cell_HeaderFile
+#include <McCadCSGGeom_Cell.hxx>
+#endif
+#ifndef _McCadCSGTool_CellBuilder_HeaderFile
+#include <McCadCSGTool_CellBuilder.hxx>
+#endif

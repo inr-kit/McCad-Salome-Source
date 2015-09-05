@@ -1,0 +1,6 @@
+#ifndef _TColStd_HSequenceOfAsciiString_HeaderFile
+#include <TColStd_HSequenceOfAsciiString.hxx>
+#endif
+#ifndef _McCadBoolExp_ExprParser_HeaderFile
+#include <McCadBoolExp_ExprParser.hxx>
+#endif

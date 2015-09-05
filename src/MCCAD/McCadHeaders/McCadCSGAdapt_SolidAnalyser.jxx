@@ -1,0 +1,9 @@
+#ifndef _TopTools_HSequenceOfShape_HeaderFile
+#include <TopTools_HSequenceOfShape.hxx>
+#endif
+#ifndef _TopoDS_Solid_HeaderFile
+#include <TopoDS_Solid.hxx>
+#endif
+#ifndef _McCadCSGAdapt_SolidAnalyser_HeaderFile
+#include <McCadCSGAdapt_SolidAnalyser.hxx>
+#endif

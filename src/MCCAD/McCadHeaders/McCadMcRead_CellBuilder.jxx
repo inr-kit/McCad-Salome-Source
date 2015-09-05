@@ -1,0 +1,9 @@
+#ifndef _McCadMcRead_Cell_HeaderFile
+#include <McCadMcRead_Cell.hxx>
+#endif
+#ifndef _TCollection_AsciiString_HeaderFile
+#include <TCollection_AsciiString.hxx>
+#endif
+#ifndef _McCadMcRead_CellBuilder_HeaderFile
+#include <McCadMcRead_CellBuilder.hxx>
+#endif

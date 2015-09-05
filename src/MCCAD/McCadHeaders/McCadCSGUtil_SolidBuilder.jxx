@@ -1,0 +1,15 @@
+#ifndef _McCadMcRead_Cell_HeaderFile
+#include <McCadMcRead_Cell.hxx>
+#endif
+#ifndef _TopoDS_Shape_HeaderFile
+#include <TopoDS_Shape.hxx>
+#endif
+#ifndef _McCadCSGGeom_Surface_HeaderFile
+#include <McCadCSGGeom_Surface.hxx>
+#endif
+#ifndef _TopTools_HSequenceOfShape_HeaderFile
+#include <TopTools_HSequenceOfShape.hxx>
+#endif
+#ifndef _McCadCSGUtil_SolidBuilder_HeaderFile
+#include <McCadCSGUtil_SolidBuilder.hxx>
+#endif

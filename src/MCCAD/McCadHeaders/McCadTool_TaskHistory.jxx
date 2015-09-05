@@ -1,0 +1,6 @@
+#ifndef _McCadTool_Task_HeaderFile
+#include <McCadTool_Task.hxx>
+#endif
+#ifndef _McCadTool_TaskHistory_HeaderFile
+#include <McCadTool_TaskHistory.hxx>
+#endif

@@ -1,0 +1,12 @@
+#ifndef _McCadCom_CasDocument_HeaderFile
+#include <McCadCom_CasDocument.hxx>
+#endif
+#ifndef _McCadCom_CasView_HeaderFile
+#include <McCadCom_CasView.hxx>
+#endif
+#ifndef _McCadWin_MouseEvent_HeaderFile
+#include <McCadWin_MouseEvent.hxx>
+#endif
+#ifndef _McCadViewTool_DisplaySelectedOnly_HeaderFile
+#include <McCadViewTool_DisplaySelectedOnly.hxx>
+#endif

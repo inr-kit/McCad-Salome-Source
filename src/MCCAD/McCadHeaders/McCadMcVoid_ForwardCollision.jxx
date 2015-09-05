@@ -1,0 +1,6 @@
+#ifndef _McCadDiscDs_HSequenceOfDiscSolid_HeaderFile
+#include <McCadDiscDs_HSequenceOfDiscSolid.hxx>
+#endif
+#ifndef _McCadMcVoid_ForwardCollision_HeaderFile
+#include <McCadMcVoid_ForwardCollision.hxx>
+#endif

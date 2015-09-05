@@ -1,0 +1,12 @@
+#ifndef _V3d_Viewer_HeaderFile
+#include <V3d_Viewer.hxx>
+#endif
+#ifndef _AIS_InteractiveContext_HeaderFile
+#include <AIS_InteractiveContext.hxx>
+#endif
+#ifndef _TCollection_AsciiString_HeaderFile
+#include <TCollection_AsciiString.hxx>
+#endif
+#ifndef _McCadAEV_Viewer_HeaderFile
+#include <McCadAEV_Viewer.hxx>
+#endif

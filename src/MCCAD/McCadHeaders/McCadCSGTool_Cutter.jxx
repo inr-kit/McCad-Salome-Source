@@ -1,0 +1,12 @@
+#ifndef _TopTools_HSequenceOfShape_HeaderFile
+#include <TopTools_HSequenceOfShape.hxx>
+#endif
+#ifndef _McCadTDS_ExtFace_HeaderFile
+#include <McCadTDS_ExtFace.hxx>
+#endif
+#ifndef _TopoDS_Solid_HeaderFile
+#include <TopoDS_Solid.hxx>
+#endif
+#ifndef _McCadCSGTool_Cutter_HeaderFile
+#include <McCadCSGTool_Cutter.hxx>
+#endif

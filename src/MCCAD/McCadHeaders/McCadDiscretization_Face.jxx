@@ -1,0 +1,6 @@
+#ifndef _McCadDiscDs_DiscFace_HeaderFile
+#include <McCadDiscDs_DiscFace.hxx>
+#endif
+#ifndef _McCadDiscretization_Face_HeaderFile
+#include <McCadDiscretization_Face.hxx>
+#endif

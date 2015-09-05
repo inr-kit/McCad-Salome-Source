@@ -1,0 +1,6 @@
+#ifndef _OSD_Path_HeaderFile
+#include <OSD_Path.hxx>
+#endif
+#ifndef _McCadEXPlug_HeaderFile
+#include <McCadEXPlug.hxx>
+#endif

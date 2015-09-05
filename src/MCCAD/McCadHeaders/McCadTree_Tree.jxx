@@ -1,0 +1,18 @@
+#ifndef _McCadTree_BaseIterator_HeaderFile
+#include <McCadTree_BaseIterator.hxx>
+#endif
+#ifndef _McCadTree_PreOrdIterator_HeaderFile
+#include <McCadTree_PreOrdIterator.hxx>
+#endif
+#ifndef _McCadTree_PostOrdIterator_HeaderFile
+#include <McCadTree_PostOrdIterator.hxx>
+#endif
+#ifndef _McCadTree_SiblIterator_HeaderFile
+#include <McCadTree_SiblIterator.hxx>
+#endif
+#ifndef _Standard_Transient_HeaderFile
+#include <Standard_Transient.hxx>
+#endif
+#ifndef _McCadTree_Tree_HeaderFile
+#include <McCadTree_Tree.hxx>
+#endif

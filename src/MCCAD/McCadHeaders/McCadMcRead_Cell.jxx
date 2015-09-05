@@ -1,0 +1,24 @@
+#ifndef _McCadMcRead_Fill_HeaderFile
+#include <McCadMcRead_Fill.hxx>
+#endif
+#ifndef _McCadMcRead_HSequenceOfFill_HeaderFile
+#include <McCadMcRead_HSequenceOfFill.hxx>
+#endif
+#ifndef _TColgp_HSequenceOfPnt_HeaderFile
+#include <TColgp_HSequenceOfPnt.hxx>
+#endif
+#ifndef _TColStd_HSequenceOfInteger_HeaderFile
+#include <TColStd_HSequenceOfInteger.hxx>
+#endif
+#ifndef _McCadMcRead_HSequenceOfCellPtr_HeaderFile
+#include <McCadMcRead_HSequenceOfCellPtr.hxx>
+#endif
+#ifndef _TColStd_HSequenceOfAsciiString_HeaderFile
+#include <TColStd_HSequenceOfAsciiString.hxx>
+#endif
+#ifndef _McCadCSGGeom_Transformation_HeaderFile
+#include <McCadCSGGeom_Transformation.hxx>
+#endif
+#ifndef _McCadMcRead_Cell_HeaderFile
+#include <McCadMcRead_Cell.hxx>
+#endif
