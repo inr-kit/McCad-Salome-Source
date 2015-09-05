@@ -35,66 +35,74 @@ This release is tested under Salome_7.4.0. Using other Salome version is not gua
 -> We abbreviate the Salome install folder as $SALOME
 
 
-***Compiling McCad ***
+***Compiling McCad***
 
 -> Download this package, unzip and rename it as "MCCAD_SRC_0.5.0", place it under $SALOME.
 
 -> We need to add MCCAD package into the Salome environment for compiling it. In the following changes, back-up those file before changing them. 
 	
-	-> Open $SALOME/build.sh (or $SALOME/build.sh), find line 32, and add "MCCAD" into the list. At the end it looks like: def_modules="${def_modules} RANDOMIZER SIERPINSKY ATOMIC ATOMGEN ATOMSOLV DOCUMENTATION MCCAD" 
-	-> Add the following environment variables to the end of $SALOME/env_build.sh (if you are using csh, then  $SALOME/env_build.csh)
+-----> Open $SALOME/build.sh (or $SALOME/build.sh), find line 32, and add "MCCAD" into the list. At the end it looks like: def_modules="${def_modules} RANDOMIZER SIERPINSKY ATOMIC ATOMGEN ATOMSOLV DOCUMENTATION MCCAD" 
+-----> Add the following environment variables to the end of $SALOME/env_build.sh (if you are using csh, then  $SALOME/env_build.csh)
 	
-#------ MCCAD ------
-export MCCAD_ROOT_DIR=${INST_ROOT}/MCCAD_0.5.0
-if [ -n "${ENV_FOR_LAUNCH}" ] ; then
-  if [ "${ENV_FOR_LAUNCH}" = "1" ] ; then
-    exportp PATH ${MCCAD_ROOT_DIR}/bin/salome
-    exportp LD_LIBRARY_PATH ${MCCAD_ROOT_DIR}/lib/salome
-    exportp PYTHONPATH ${MCCAD_ROOT_DIR}/bin/salome:${MCCAD_ROOT_DIR}/lib/python${PYTHON_VERSION}/site-packages/salome
-  fi
-fi
-##
-#------ MCCAD_src ------
-export MCCAD_SRC_DIR=${INST_ROOT}/MCCAD_SRC_0.5.0
+	#------ MCCAD ------
+	export MCCAD_ROOT_DIR=${INST_ROOT}/MCCAD_0.5.0
+	if [ -n "${ENV_FOR_LAUNCH}" ] ; then
+	  if [ "${ENV_FOR_LAUNCH}" = "1" ] ; then
+		exportp PATH ${MCCAD_ROOT_DIR}/bin/salome
+		exportp LD_LIBRARY_PATH ${MCCAD_ROOT_DIR}/lib/salome
+		exportp PYTHONPATH ${MCCAD_ROOT_DIR}/bin/salome:${MCCAD_ROOT_DIR}/lib/python${PYTHON_VERSION}/site-packages/salome
+	  fi
+	fi
+	##
+	#------ MCCAD_src ------
+	export MCCAD_SRC_DIR=${INST_ROOT}/MCCAD_SRC_0.5.0
 
 -> Go to $SALOME, run the following command to compile McCad:
+
 	./build.sh MCCAD
 	
 -> After the compilation, You can find the binaries in $SALOME/INSTALL/MCCAD_0.5.0. Copy this folder "MCCAD_0.5.0" to $SALOME folder. 
 
 
-***Installing and running McCad ***
+***Installing and running McCad***
 
 -> Be sure that your $SALOME/MCCAD_0.5.0 folder have following folders:
+
 	-> bin
+	
 	-> lib
+	
 	-> share
+	
 	-> adm_local
+	
 	-> idl
+	
 	-> include
 
 -> Open $SALOME/KERNEL_7.4.0/salome.sh, add the following environment variables into this file.
 
-#------ MCCAD ------
-export MCCAD_ROOT_DIR=${INST_ROOT}/MCCAD_0.5.0
-if [ -n "${ENV_FOR_LAUNCH}" ] ; then
-  if [ "${ENV_FOR_LAUNCH}" = "1" ] ; then
-    exportp PATH ${MCCAD_ROOT_DIR}/bin/salome
-    exportp LD_LIBRARY_PATH ${MCCAD_ROOT_DIR}/lib/salome
-    exportp PYTHONPATH ${MCCAD_ROOT_DIR}/bin/salome:${MCCAD_ROOT_DIR}/lib/python${PYTHON_VERSION}/site-packages/salome
-  fi
-fi
-##
-#------ MCCAD_src ------
-export MCCAD_SRC_DIR=${INST_ROOT}/MCCAD_SRC_0.5.0
+	#------ MCCAD ------
+	export MCCAD_ROOT_DIR=${INST_ROOT}/MCCAD_0.5.0
+	if [ -n "${ENV_FOR_LAUNCH}" ] ; then
+	  if [ "${ENV_FOR_LAUNCH}" = "1" ] ; then
+		exportp PATH ${MCCAD_ROOT_DIR}/bin/salome
+		exportp LD_LIBRARY_PATH ${MCCAD_ROOT_DIR}/lib/salome
+		exportp PYTHONPATH ${MCCAD_ROOT_DIR}/bin/salome:${MCCAD_ROOT_DIR}/lib/python${PYTHON_VERSION}/site-packages/salome
+	  fi
+	fi
+	##
+	#------ MCCAD_src ------
+	export MCCAD_SRC_DIR=${INST_ROOT}/MCCAD_SRC_0.5.0
 
 -> In your desktop, create a new file "runSalome.sh" and put following text into this file(replacing $SALOME with actual path!!): 
 
-#!/bin/bash
-source $SALOME/KERNEL_7.4.0/salome.sh
-$SALOME/salome_appli_7.4.0/salome --module=GEOM,SMESH,PARAVIS,MCCAD
+	#!/bin/bash
+	source $SALOME/KERNEL_7.4.0/salome.sh
+	$SALOME/salome_appli_7.4.0/salome --module=GEOM,SMESH,PARAVIS,MCCAD
 
 -> Under Desktop, make this file as executable script using this command:
+
 	chmod +x ./runSalome.sh
 
 ->You can run McCad-Salome with running this script now. 
@@ -151,8 +159,7 @@ ATTENTION: In this following step you need to have Visual Studio 2010. Without i
 	
 ----->right-click the short-cut link in the Desktop, choose "properties";
 	
------>Behind the value of "Target", add " --module=MCCAD" or "
-	--module=GEOM,SMESH,PARAVIS,MCCAD"(with a whitespace in the front). Click "OK". Next time you can start McCad with this short-cut link. 
+----->Behind the value of "Target", add " --module=MCCAD" or "--module=GEOM,SMESH,PARAVIS,MCCAD"(with a whitespace in the front). Click "OK". Next time you can start McCad with this short-cut link. 
 
 
 
