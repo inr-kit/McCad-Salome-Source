@@ -43,7 +43,7 @@ This release is tested under Salome_7.4.0. Using other Salome version is not gua
 	
   * Open $SALOME/build.sh (or $SALOME/build.sh), find line 32, and add "MCCAD" into the list. At the end it looks like: def_modules="${def_modules} RANDOMIZER SIERPINSKY ATOMIC ATOMGEN ATOMSOLV DOCUMENTATION MCCAD" 
   * Add the following environment variables to the end of $SALOME/env_build.sh (if you are using csh, then  $SALOME/env_build.csh)
-	
+```	
 	#------ MCCAD ------
 	export MCCAD_ROOT_DIR=${INST_ROOT}/MCCAD_0.5.0
 	if [ -n "${ENV_FOR_LAUNCH}" ] ; then
@@ -56,11 +56,11 @@ This release is tested under Salome_7.4.0. Using other Salome version is not gua
 	##
 	#------ MCCAD_src ------
 	export MCCAD_SRC_DIR=${INST_ROOT}/MCCAD_SRC_0.5.0
-
+```
 * Go to $SALOME, run the following command to compile McCad:
-
+```
 	./build.sh MCCAD
-	
+```	
 * After the compilation, You can find the binaries in $SALOME/INSTALL/MCCAD_0.5.0. Copy this folder "MCCAD_0.5.0" to $SALOME folder. 
 
 
@@ -76,7 +76,7 @@ This release is tested under Salome_7.4.0. Using other Salome version is not gua
   *  include
 
 * Open $SALOME/KERNEL_7.4.0/salome.sh, add the following environment variables into this file.
-
+```
 	#------ MCCAD ------
 	export MCCAD_ROOT_DIR=${INST_ROOT}/MCCAD_0.5.0
 	if [ -n "${ENV_FOR_LAUNCH}" ] ; then
@@ -89,7 +89,7 @@ This release is tested under Salome_7.4.0. Using other Salome version is not gua
 	##
 	#------ MCCAD_src ------
 	export MCCAD_SRC_DIR=${INST_ROOT}/MCCAD_SRC_0.5.0
-
+```
 * In your desktop, create a new file "runSalome.sh" and put following text into this file(replacing $SALOME with actual path!!): 
 
 	#!/bin/bash
