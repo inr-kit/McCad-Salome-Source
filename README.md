@@ -91,11 +91,11 @@ This release is tested under Salome_7.4.0. Using other Salome version is not gua
 	export MCCAD_SRC_DIR=${INST_ROOT}/MCCAD_SRC_0.5.0
 ```
 * In your desktop, create a new file "runSalome.sh" and put following text into this file(replacing $SALOME with actual path!!): 
-
+```
 	#!/bin/bash
 	source $SALOME/KERNEL_7.4.0/salome.sh
 	$SALOME/salome_appli_7.4.0/salome --module=GEOM,SMESH,PARAVIS,MCCAD
-
+```
 * Under Desktop, make this file as executable script using this command:
 
 	chmod +x ./runSalome.sh
