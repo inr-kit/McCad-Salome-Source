@@ -50,8 +50,10 @@ private:
     static unsigned int m_iVoidDecomposeDepth;   /**< The depth of void decomposition */
     static unsigned int m_iInitCellNum;          /**< Initial cell number */
     static unsigned int m_iInitSurfNum;          /**< Initial surface number */
-    static unsigned int m_iXResolution;          /**< Resolution of X axis */
-    static unsigned int m_iYResolution;          /**< Resolution of Y axis */
+//qiu    static unsigned int m_iXResolution;          /**< Resolution of X axis */
+    static double m_iXResolution;          /**< Resolution of X axis */
+//qiu    static unsigned int m_iYResolution;          /**< Resolution of Y axis */
+    static double m_iYResolution;          /**< Resolution of Y axis */
     static double m_iRResolution;                /**< R direction */
 
     static unsigned int m_iMaxSmplPntNum;        /**< Max sample point number */
@@ -86,9 +88,12 @@ Standard_EXPORT    void AssignPrmt(const TCollection_AsciiString StringLine);
     Standard_EXPORT static unsigned int GetVoidDecomposeDepth();
     Standard_EXPORT static unsigned int GetInitCellNum();
     Standard_EXPORT static unsigned int GetInitSurfNum();
-    Standard_EXPORT static unsigned int GetXResolution();
-    Standard_EXPORT static unsigned int GetYResolution();
-    Standard_EXPORT static unsigned int GetRResolution();
+//qiu    Standard_EXPORT static unsigned int GetXResolution();
+    Standard_EXPORT static double GetXResolution();
+//qiu    Standard_EXPORT static unsigned int GetYResolution();
+    Standard_EXPORT static double GetYResolution();
+//qiu    Standard_EXPORT static unsigned int GetRResolution();
+    Standard_EXPORT static double GetRResolution();
     Standard_EXPORT static unsigned int GetMaxSmplPntNum();
     Standard_EXPORT static unsigned int GetMinSmplPntNum();
 
@@ -111,9 +116,12 @@ Standard_EXPORT    void AssignPrmt(const TCollection_AsciiString StringLine);
     Standard_EXPORT static void SetVoidDecomposeDepth(const unsigned int & iVoidDecomposeDepth);
     Standard_EXPORT static void SetInitCellNum(const unsigned int & iInitCellNum);
     Standard_EXPORT static void SetInitSurfNum(const unsigned int & iInitSurfNum);
-    Standard_EXPORT static void SetXResolution(const unsigned int & iXResolution);
-    Standard_EXPORT static void SetYResolution(const unsigned int & iYResolution);
-    Standard_EXPORT static void SetRResolution(const unsigned int & iRResolution);
+//qiu    Standard_EXPORT static void SetXResolution(const unsigned int & iXResolution);
+    Standard_EXPORT static void SetXResolution(const double & iXResolution);
+//qiu    Standard_EXPORT static void SetYResolution(const unsigned int & iYResolution);
+    Standard_EXPORT static void SetYResolution(const double & iYResolution);
+//qiu    Standard_EXPORT static void SetRResolution(const unsigned int & iRResolution);
+    Standard_EXPORT static void SetRResolution(const double & iRResolution);
     Standard_EXPORT static void SetMaxSmplPntNum(const unsigned int & iMaxSmplPntNum);
     Standard_EXPORT static void SetMinSmplPntNum(const unsigned int & iMinSmplPntNum);
 

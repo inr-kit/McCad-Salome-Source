@@ -604,9 +604,11 @@ void McCadTripoliWriter::PrintFile()
         OSD_File theFile(thePath);
         theFile.Build(OSD_ReadWrite , OSD_Protection());
 
-        TCollection_AsciiString FileName = thePath.Name() + thePath.Extension();
-        const char* strName = FileName.ToCString();
-        ofstream theStream(strName);
+//qiu        TCollection_AsciiString FileName = thePath.Name() + thePath.Extension();
+//qiu        const char* strName = FileName.ToCString();
+//qiu        ofstream theStream(strName);
+        ofstream theStream(m_OutputFileName.ToCString());
+
 
         PrintHeadDesc(theStream);
         PrintSurfDesc(theStream);

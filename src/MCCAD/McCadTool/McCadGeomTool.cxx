@@ -209,9 +209,19 @@ void McCadGeomTool::SimplifyPoint(gp_Pnt & pnt3d)
     Standard_Real y = pnt3d.Y();
     Standard_Real z = pnt3d.Z();
 
+    //qiu because in windows system OCC 32bit is used.
+    //it cause the problem on precisions, and RemoveRepeatPnt delete a lot of points
+    //the code is update to solve the problem
+#ifdef WIN32
+    x = ((long long int)(x*10000000.0))/10000000.0;
+    y = ((long long int)(y*10000000.0))/10000000.0;
+    z = ((long long int)(z*10000000.0))/10000000.0;
+#else //linux
     x = ((long int)(x*10000000.0))/10000000.0;
     y = ((long int)(y*10000000.0))/10000000.0;
     z = ((long int)(z*10000000.0))/10000000.0;
+#endif
+
 
     pnt3d.SetX(x);
     pnt3d.SetY(y);

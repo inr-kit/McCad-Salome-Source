@@ -17,8 +17,10 @@ double McCadConvertConfig::m_dAngleTolerance = 1.0e-3;
 unsigned int McCadConvertConfig::m_iVoidDecomposeDepth = 10;
 unsigned int McCadConvertConfig::m_iInitCellNum = 0;
 unsigned int McCadConvertConfig::m_iInitSurfNum = 0;
-unsigned int McCadConvertConfig::m_iXResolution = 50;
-unsigned int McCadConvertConfig::m_iYResolution = 50;
+//qiu unsigned int McCadConvertConfig::m_iXResolution = 50;
+double McCadConvertConfig::m_iXResolution = 0.001;
+//qiu unsigned int McCadConvertConfig::m_iYResolution = 50;
+double McCadConvertConfig::m_iYResolution = 0.001;
 double McCadConvertConfig::m_iRResolution = 0.0314;
 
 unsigned int McCadConvertConfig::m_iMaxSmplPntNum = 50;
@@ -105,8 +107,10 @@ void McCadConvertConfig::SetSurfSequ()
     iInitCellNum = root.attributeNode("InitCellNum").nodeValue().toInt();
     iInitSurfNum = root.attributeNode("InitSurfNum").nodeValue().toInt();
 
-    iXResolution = root.attributeNode("XResolution").nodeValue().toInt();
-    iYResolution = root.attributeNode("YResolution").nodeValue().toInt();
+//qiu    iXResolution = root.attributeNode("XResolution").nodeValue().toInt();
+//qiu    iYResolution = root.attributeNode("YResolution").nodeValue().toInt();
+    iXResolution = root.attributeNode("XResolution").nodeValue().toDouble();
+    iYResolution = root.attributeNode("YResolution").nodeValue().toDouble();
 
     iMaxSmplPntNum = root.attributeNode("MaxSamplePoints").nodeValue().toInt();
     iMinSmplPntNum = root.attributeNode("MinSamplePoints").nodeValue().toInt();
@@ -217,13 +221,15 @@ bool McCadConvertConfig::ReadPrmt(const TCollection_AsciiString InputFileName)
                 if(!numString.IsIntegerValue() && !numString.IsRealValue())
                     MissmatchMessage(iString,numString);
                 else
-                    m_iXResolution = numString.IntegerValue();
+//qiu                    m_iXResolution = numString.IntegerValue();
+                    m_iXResolution = numString.RealValue();
             }
             else if(iString.IsEqual("YRESOLUTION")) {
                 if(!numString.IsIntegerValue() && !numString.IsRealValue())
                     MissmatchMessage(iString,numString);
                 else
-                   m_iYResolution = numString.IntegerValue();
+//qiu                    m_iYResolution = numString.IntegerValue();
+                   m_iYResolution = numString.RealValue();
             }
             else if(iString.IsEqual("RRESOLUTION")) {
                 if(!numString.IsIntegerValue() && !numString.IsRealValue())
@@ -333,9 +339,12 @@ double McCadConvertConfig::GetMinVoidVol(){return m_dMinVoidVol;}
 unsigned int McCadConvertConfig::GetVoidDecomposeDepth(){return m_iVoidDecomposeDepth;}
 unsigned int McCadConvertConfig::GetInitCellNum(){return m_iInitCellNum;}
 unsigned int McCadConvertConfig::GetInitSurfNum(){return m_iInitSurfNum;}
-unsigned int McCadConvertConfig::GetXResolution(){return m_iXResolution;}
-unsigned int McCadConvertConfig::GetYResolution(){return m_iYResolution;}
-unsigned int McCadConvertConfig::GetRResolution(){return m_iRResolution;}
+//qiu unsigned int McCadConvertConfig::GetXResolution(){return m_iXResolution;}
+double McCadConvertConfig::GetXResolution(){return m_iXResolution;}
+//qiu unsigned int McCadConvertConfig::GetYResolution(){return m_iYResolution;}
+double McCadConvertConfig::GetYResolution(){return m_iYResolution;}
+//qiu unsigned int McCadConvertConfig::GetRResolution(){return m_iRResolution;}
+double McCadConvertConfig::GetRResolution(){return m_iRResolution;}
 unsigned int McCadConvertConfig::GetMaxSmplPntNum(){return m_iMaxSmplPntNum;}
 unsigned int McCadConvertConfig::GetMinSmplPntNum(){return m_iMinSmplPntNum;}
 
@@ -358,9 +367,12 @@ void McCadConvertConfig::SetMinVoidVol(const double & dMinVoidVol ){ m_dMinVoidV
 void McCadConvertConfig::SetVoidDecomposeDepth(const unsigned int & iVoidDecomposeDepth){ m_iVoidDecomposeDepth = iVoidDecomposeDepth;}
 void McCadConvertConfig::SetInitCellNum(const unsigned int & iInitCellNum){ m_iInitCellNum = iInitCellNum;}
 void McCadConvertConfig::SetInitSurfNum(const unsigned int & iInitSurfNum){ m_iInitSurfNum = iInitSurfNum;}
-void McCadConvertConfig::SetXResolution(const unsigned int & iXResolution){ m_iXResolution = iXResolution;}
-void McCadConvertConfig::SetYResolution(const unsigned int & iYResolution){ m_iYResolution = iYResolution;}
-void McCadConvertConfig::SetRResolution(const unsigned int & iRResolution){ m_iRResolution = iRResolution;}
+//qiu void McCadConvertConfig::SetXResolution(const unsigned int & iXResolution){ m_iXResolution = iXResolution;}
+void McCadConvertConfig::SetXResolution(const double & iXResolution){ m_iXResolution = iXResolution;}
+//qiu void McCadConvertConfig::SetYResolution(const unsigned int & iYResolution){ m_iYResolution = iYResolution;}
+void McCadConvertConfig::SetYResolution(const double & iYResolution){ m_iYResolution = iYResolution;}
+//qiu void McCadConvertConfig::SetRResolution(const unsigned int & iRResolution){ m_iRResolution = iRResolution;}
+void McCadConvertConfig::SetRResolution(const double & iRResolution){ m_iRResolution = iRResolution;}
 void McCadConvertConfig::SetMaxSmplPntNum(const unsigned int & iMaxSmplPntNum){ m_iMaxSmplPntNum = iMaxSmplPntNum;}
 void McCadConvertConfig::SetMinSmplPntNum(const unsigned int & iMinSmplPntNum){ m_iMinSmplPntNum = iMinSmplPntNum;}
 
