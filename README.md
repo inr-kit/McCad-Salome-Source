@@ -8,7 +8,7 @@ For any questions related to the use of this software/library you may contact Ul
 **************************************************************************************
 
 
-It is not necessary to compile McCad in order to use it, because we provided also precompiled McCad binaries. You can find them in  repository [McCad-Salome-Binaries](https://github.com/inr-kit/McCad-Salome-Binaries). Compile it only if you cannot find precompiled McCad binaries, or you are going to change the source code. For Using McCad, Please find documents on Github repository [McCad-Salome-Docs](https://github.com/inr-kit/McCad-Salome-Docs).
+It is not necessary to compile McCad in order to use it, because we provided also precompiled McCad binaries. You can find them in  repository [McCad-Salome-Binaries](https://github.com/inr-kit/McCad-Salome-Binaries). Compile it only if you cannot find precompiled McCad binaries, or you are going to change the source code. For Using McCad, Please find documents on Github repository [McCad-Salome-Docs](https://github.com/inr-kit/McCad-Salome-Docs).Please subscribe our mailing list for receiving latest updates and asking question in our [Google group](https://groups.google.com/forum/#!forum/mccad-users), by send a empty email to  McCad-users+subscribe@googlegroups.com and reply the comfirmation email.  
 
 This release is tested under Salome_7.4.0. Using other Salome version is not guarantee to work, and might cause error during this process. 
 
