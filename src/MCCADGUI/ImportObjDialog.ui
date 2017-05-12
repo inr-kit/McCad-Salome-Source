@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>349</width>
-    <height>184</height>
+    <width>454</width>
+    <height>381</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -40,7 +40,7 @@
     </font>
    </property>
    <property name="text">
-    <string>Please select a group or a part to assign
+    <string>Please select groups or parts to assign
 the geometry/mesh:</string>
    </property>
   </widget>
@@ -57,47 +57,11 @@ the geometry/mesh:</string>
     <string>From:</string>
    </property>
   </widget>
-  <widget class="QLabel" name="lb_geom_name">
-   <property name="geometry">
-    <rect>
-     <x>120</x>
-     <y>80</y>
-     <width>62</width>
-     <height>17</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <italic>true</italic>
-    </font>
-   </property>
-   <property name="text">
-    <string>No name</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="lb_mccad_name">
-   <property name="geometry">
-    <rect>
-     <x>120</x>
-     <y>100</y>
-     <width>111</width>
-     <height>17</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <italic>true</italic>
-    </font>
-   </property>
-   <property name="text">
-    <string>No selected</string>
-   </property>
-  </widget>
   <widget class="QLabel" name="label_5">
    <property name="geometry">
     <rect>
-     <x>40</x>
-     <y>100</y>
+     <x>260</x>
+     <y>80</y>
      <width>62</width>
      <height>17</height>
     </rect>
@@ -109,8 +73,8 @@ the geometry/mesh:</string>
   <widget class="QPushButton" name="Btn_ok">
    <property name="geometry">
     <rect>
-     <x>40</x>
-     <y>130</y>
+     <x>220</x>
+     <y>340</y>
      <width>93</width>
      <height>27</height>
     </rect>
@@ -122,8 +86,8 @@ the geometry/mesh:</string>
   <widget class="QPushButton" name="Btn_cancel">
    <property name="geometry">
     <rect>
-     <x>180</x>
-     <y>130</y>
+     <x>330</x>
+     <y>340</y>
      <width>93</width>
      <height>27</height>
     </rect>
@@ -131,6 +95,37 @@ the geometry/mesh:</string>
    <property name="text">
     <string>Cancel</string>
    </property>
+  </widget>
+  <widget class="QWidget" name="horizontalLayoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>40</x>
+     <y>110</y>
+     <width>381</width>
+     <height>211</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout">
+    <item>
+     <widget class="QTextEdit" name="te_geom_name"/>
+    </item>
+    <item>
+     <spacer name="horizontalSpacer">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>40</width>
+        <height>20</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item>
+     <widget class="QTextEdit" name="te_mccad_name"/>
+    </item>
+   </layout>
   </widget>
  </widget>
  <resources/>

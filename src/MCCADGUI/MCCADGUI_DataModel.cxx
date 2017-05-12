@@ -65,7 +65,7 @@
 #include "MEDCouplingAutoRefCountObjectPtr.hxx"
 
 //MCCAD and OCC
-#include <McCadCSGTool_SurfaceChecker.hxx>
+#include "../MCCAD/McCadTool/McCadCSGTool_SurfaceChecker.hxx"
 #include <BRep_Builder.hxx>
 #include <BRepTools.hxx>
 #include <STEPControl_Reader.hxx>
@@ -79,7 +79,7 @@
 #include <gp_Ax1.hxx>
 #include <gp_Trsf.hxx>
 #include <BRepBuilderAPI_Transform.hxx>
-
+#include "MCMESHTRAN_AbaqusMeshReader.hxx"
 #include <time.h>
 
 /*! Constructor */
@@ -1365,8 +1365,13 @@ bool MCCADGUI_DataModel::decomposeShapes(const DataObjectList & aObjList)
         if (aObj->isPart()) {
             MCCAD_ORB::Part_var aPart = aObj->getPart();
             if (!aPart->_is_nil()) {
-                if (engine->decomposePart(aPart))  //not using _retn() method because apart is not release inside. do not care about failed or not
+                if (engine->decomposePart(aPart))  {//not using _retn() method because apart is not release inside. do not care about failed or not
                     MESSAGE("Part: "<< aPart->getName() <<" is decomposed.");
+                }
+                //testing
+                else {
+                    cout<<"Decomposition failed, sorry..."<<endl;
+                }
             }
         }
         //recursively decompose the parts in
@@ -1378,8 +1383,9 @@ bool MCCADGUI_DataModel::decomposeShapes(const DataObjectList & aObjList)
         else if (aObj->isComponent()) {
             MCCAD_ORB::Component_var aComponent = aObj->getComponent();
             if (aComponent->_is_nil()) continue;
-            if (aComponent->hasEnvelop())  //add step to decompose envelop
-                engine->decomposeEnvelop(aComponent);
+            if (aComponent->hasEnvelop())  { //add step to decompose envelop
+                if (!engine->decomposeEnvelop(aComponent)) return false;
+            }
             else {
                 DataObjectList aNewObjList = aObj->children();
                 if (!aNewObjList.isEmpty())
@@ -1664,22 +1670,12 @@ bool  MCCADGUI_DataModel::sendMesh2SMESH(const QStringList& aList)
  * \param aMesh a MEDCouplingUMesh CORBA interface, please give the reference, dont release outside!
  * \return
  */
-bool MCCADGUI_DataModel::assignMesh(const QString& aEntry, const QString &aSMESHEntry , const QString & aName )
+bool MCCADGUI_DataModel::assignMesh(const QStringList& aEntryList, const QStringList & aSMESHEntryList  , const QStringList &aNameList)
 {
 
     //checking
-    MCCADGUI_DataObject * aObj = findObject( aEntry);
-    if (!aObj) {
-        MESSAGE("Cannot find this object!");
-        return false;
-    }
-
-    //get the smesh object
-    const LightApp_DataOwner* owner = new LightApp_DataOwner (aSMESHEntry);
-    // Get geom object from IO
-    SMESH::SMESH_Mesh_var aSMESHObj = getMCCADGUImodule()->getSmesh(owner, true);
-    if (aSMESHObj->_is_nil())    {
-        MESSAGE("the SMESH object is nil!");
+    if(aEntryList.size() != aSMESHEntryList.size())     {
+        MESSAGE("The selected objects are not matching with the number of mesh objects!");
         return false;
     }
 
@@ -1687,39 +1683,61 @@ bool MCCADGUI_DataModel::assignMesh(const QString& aEntry, const QString &aSMESH
     const int studyID = getStudyID();
     if ( !studyID || CORBA::is_nil( engine ) ) return false;
 
-    //export mesh to a med file
-    try {
-        QString aTmpDir = aName + QString(".med") ;
-        QFile::remove(aTmpDir);
-        aSMESHObj->ExportMED(aTmpDir.toLatin1(), true); //first export to MED mesh file
-        //import the file
-        SALOME_MED::MEDCouplingUMeshCorbaInterface_ptr aUMesh =
-                engine->importMED(aTmpDir.toLatin1());
-        if (aUMesh->_is_nil()) {
-            MESSAGE("the read mesh is nil!");
+    QString aEntry, aSMESHEntry;
+    for (int i=0; i<aEntryList.size(); i++)
+    {
+        aEntry = aEntryList.at(i);
+        aSMESHEntry = aSMESHEntryList.at(i);
+
+        MCCADGUI_DataObject * aObj = findObject( aEntry);
+        if (!aObj) {
+            MESSAGE("Cannot find this object!");
             return false;
         }
-        //find the part
-        if (aObj->isPart()) {
-            MCCAD_ORB::Part_var aPart = aObj->getPart();
-            if (aPart->_is_nil()) {
-                MESSAGE("the Part is nil!");
+
+        //get the smesh object
+        const LightApp_DataOwner* owner = new LightApp_DataOwner (aSMESHEntry);
+        // Get geom object from IO
+        SMESH::SMESH_Mesh_var aSMESHObj = getMCCADGUImodule()->getSmesh(owner, true);
+        if (aSMESHObj->_is_nil())    {
+            MESSAGE("the SMESH object is nil!");
+            return false;
+        }
+
+        //export mesh to a med file
+        try {
+            QString aTmpDir = aNameList.at(i) + QString(".med") ;
+            QFile::remove(aTmpDir);
+            aSMESHObj->ExportMED(aTmpDir.toLatin1(), true); //first export to MED mesh file
+            //import the file
+            SALOME_MED::MEDCouplingUMeshCorbaInterface_ptr aUMesh =
+                    engine->importMED(aTmpDir.toLatin1());
+            if (aUMesh->_is_nil()) {
+                MESSAGE("the read mesh is nil!");
+                return false;
+            }
+            //find the part
+            if (aObj->isPart()) {
+                MCCAD_ORB::Part_var aPart = aObj->getPart();
+                if (aPart->_is_nil()) {
+                    MESSAGE("the Part is nil!");
+                    QFile::remove(aTmpDir);
+                    return false;
+                }
+                aPart->setMesh(aUMesh);
+            }
+            else {
+                MESSAGE("Cannot assign mesh to this kind of object!");
                 QFile::remove(aTmpDir);
                 return false;
             }
-            aPart->setMesh(aUMesh);
-        }
-        else {
-            MESSAGE("Cannot assign mesh to this kind of object!");
             QFile::remove(aTmpDir);
+        }
+        catch (SALOME::SALOME_Exception &ex)
+        {
+            MESSAGE("assign mesh failed: " << ex.details.text);
             return false;
         }
-        QFile::remove(aTmpDir);
-    }
-    catch (SALOME::SALOME_Exception &ex)
-    {
-        MESSAGE("assign mesh failed: " << ex.details.text);
-        return false;
     }
     return true;
 }
@@ -2049,6 +2067,11 @@ bool   MCCADGUI_DataModel:: checkBeforeConvert()
     bool isMCNP6 = false;
     if (resMgr->integerValue("MCCAD", "target_code", 0) == 1) //if MCNP6 is chosen
         isMCNP6 = true;
+    bool isGDML = false;
+    if (resMgr->integerValue("MCCAD", "target_code", 0) == 3) //if GDML is chosen
+        isGDML = true;
+    bool isForceDecomp= resMgr->booleanValue("MCCAD", "force_decomp", true);
+
     double AllowDiff = resMgr->doubleValue("MCCAD", "Mesh_Volume_Diff", 0.01);
     double aTotalVol = 0, bTotalVol = 0; //for calculating the total volume
 
@@ -2143,8 +2166,9 @@ bool   MCCADGUI_DataModel:: checkBeforeConvert()
                     bVol = aPart->getMeshVolume();
                     aTotalVol += aVol;
                     bTotalVol += bVol;
-                    double tmpDouble = fabs(aVol-bVol)/aVol;
-                    cout <<"\t Mesh Volume: "<<bVol<<"\t\t Diff.: "<<tmpDouble<<"\t\t";
+//                    double tmpDouble = fabs(aVol-bVol)/aVol;
+                    double tmpDouble = (aVol-bVol)/aVol;
+                    cout <<"\t Mesh Volume: \t"<<bVol<<"\t\t Diff.: \t"<<tmpDouble<<"\t\t";
                     if (fabs(aVol-bVol)/aVol > AllowDiff){
                         cout << "ERROR: Mesh volume not much with CAD volume!  \t"<<aVol <<"\t"<<bVol<<"\t Diff: \t"<<fabs(aVol-bVol)/aVol*100 <<"%"<<endl;
                         isOK = false;
@@ -2165,13 +2189,19 @@ bool   MCCADGUI_DataModel:: checkBeforeConvert()
                       isOK = false;
                       continue;
                   }
-                  if (!checkSurface(aTmpShape, aPart->getName())) {
-                      cout << "ERROR: Contain invalid surfaces!"<<endl;
-                      isOK = false;
-                      continue;
-                  }
-                  if (!aPart->getIsDecomposed()) {
-                      cout << "INFO: This Part is not decomposed, will be done during conversion."<<endl;
+                  if (isForceDecomp) {
+                      if (!checkSurface(aTmpShape, aPart->getName())) {
+                          cout << "ERROR: Contain invalid surfaces!"<<endl;
+                          isOK = false;
+                          continue;
+                      }
+
+                      if (!aPart->getIsDecomposed()) {
+                          cout << "INFO: This Part is not decomposed, will be done during conversion."<<endl;
+                          continue;
+                      }
+                      else
+                          cout <<"OK!" <<endl;
                   }
                   else cout <<"OK!" <<endl;
                 }
@@ -2180,7 +2210,7 @@ bool   MCCADGUI_DataModel:: checkBeforeConvert()
     }
     //print the volume comparison if MCNP6
     if(isMCNP6) {
-        cout << "Comparison from CAD volume and Mesh volume \t"<<aTotalVol <<"\t"<<bTotalVol<<"\t Diff: \t"<<fabs(aTotalVol-bTotalVol)/aTotalVol*100 <<"%"<<endl;
+        cout << "Comparison from CAD volume and Mesh volume \t"<<aTotalVol <<"\t"<<bTotalVol<<"\t Diff: \t"<<(aTotalVol-bTotalVol)/aTotalVol*100 <<"%"<<endl;
     }
     cout <<"O####CHECKING ENDED####O" <<endl;
     cout <<"O######################O" <<endl;
@@ -2351,7 +2381,14 @@ void MCCADGUI_DataModel::setConvertPara()
     McCadConvertConfig::SetTolerence          (resMgr->doubleValue("MCCAD","Tolerance"           , 1.0e-4 ));
     McCadConvertConfig::SetWriteCollisionFile (resMgr->booleanValue("MCCAD","write_disc_file"     , true   ));
 
-    McCadConvertConfig::SetGenerateVoid       (resMgr->booleanValue("MCCAD","gen_void"            , true   ));
+    int codeOption = resMgr->integerValue("MCCAD", "target_code", 0) ;
+    if (codeOption == 3) {
+        //disable void generation
+        McCadConvertConfig::SetGenerateVoid       (false);
+    }
+    else {
+        McCadConvertConfig::SetGenerateVoid       (resMgr->booleanValue("MCCAD","gen_void"            , true   ));
+    }
 //    McCadConvertConfig::SetInitPseudoCellNum  (resMgr->integerValue("MCCAD","init_pseudo_cell_no" , 90000  ));
 //    McCadConvertConfig::SetInitEmbedCardNum   (resMgr->integerValue("MCCAD","embed_card_no"       , 2      ));
 
@@ -2403,7 +2440,8 @@ bool   MCCADGUI_DataModel::generateTetMesh(const DataObjectList & aObjList)
     SUIT_ResourceMgr* resMgr = session->resourceMgr();
     int    aMeshEngineOpt  = resMgr->integerValue("MCCAD", "meshing_engine", 0);
     double aDeflection = resMgr->doubleValue("MCCAD","STL_Deflection"              , 0.001  );
-    double aCoefficient = resMgr->doubleValue("MCCAD","STL_Coefficient"             , 0.01  );
+//    double aCoefficient = resMgr->doubleValue("MCCAD","STL_Coefficient"             , 0.001  );
+    double aVolThreshold = resMgr->doubleValue("MCCAD","Vol_Threshold"             , 0.0  );
     double aMeshQuality = resMgr->doubleValue("MCCAD","Tet_MeshQuality"             , 2.0   );
 
     bool isOK = true;
@@ -2434,14 +2472,18 @@ bool   MCCADGUI_DataModel::generateTetMesh(const DataObjectList & aObjList)
             }
             //generatet he mesh
             if (aMeshEngineOpt == 0){
-                if (!engine->generateTetgenMesh(aPart,aDeflection, aCoefficient,aMeshQuality )) {
+                MESSAGE("Generate mesh for " <<aPart->getName() <<" .");
+
+                if (!engine->generateTetgenMesh(aPart,aDeflection, /*aCoefficient*/aVolThreshold,aMeshQuality )) {
     //                MESSAGE("The  part" <<aPart->getName() <<" is failed in generating tetrahedral mesh!");
                     failedMsg << "The  part" <<aPart->getName() <<" is failed in generating tetrahedral mesh! \n";
                     isOK = false;
                 }
             }
             else if (aMeshEngineOpt == 1) {
-                if (!engine->generateNetgenMesh(aPart,aDeflection, aCoefficient )) {
+                MESSAGE("Generate mesh for " <<aPart->getName() <<" .");
+
+                if (!engine->generateNetgenMesh(aPart,aDeflection, /*aCoefficient*/aVolThreshold )) {
     //                MESSAGE("The  part" <<aPart->getName() <<" is failed in generating tetrahedral mesh!");
                     failedMsg << "The  part" <<aPart->getName() <<" is failed in generating tetrahedral mesh! \n";
                     isOK = false;
@@ -2789,6 +2831,82 @@ bool  MCCADGUI_DataModel::markAllIfDecomposed(const bool & isDecomposed)
 }
 
 
+
+/*!
+ * \brief import a Abaqus mesh file
+ *  the abaqus file should contain parts, assembly and instances,
+ *  the instances should inherit from parts, independent create of instances is not supported.
+ *  part is creat as an independent mesh, the elset and nset is not token care
+ * \param AbaqusFileName
+ * \return
+ */
+bool   MCCADGUI_DataModel::importAbaqus(const QString & AbaqusFileName)
+{
+    if (AbaqusFileName.trimmed().isEmpty()) {
+        MESSAGE("Error in filename !");
+        return false;
+    }
+    MESSAGE ("Import Meshes from: " << AbaqusFileName.toStdString());
+    //new group for new meshes
+    QStringList atmpList = QString(AbaqusFileName).split('/');
+    atmpList = atmpList.at(atmpList.size()-1).split('.');
+//    MeshGroup * aGroup = new MeshGroup (atmpList.at(0).toLatin1(), genId());
+
+    //get the smesh engine
+    SMESH::SMESH_Gen_var aSMESHGen = SMESHGUI::GetSMESHGen() ;
+    if (aSMESHGen->_is_nil()) {
+        MESSAGE("Please open the SMESH module before this operation!");
+        return false;
+    }
+    //get mccad engine
+    MCCAD_ORB::MCCAD_Gen_var engine = MCCADGUI::GetMCCADGen();
+    const int studyID = getStudyID();
+    if ( !studyID || CORBA::is_nil( engine ) ) return false;
+
+    //using reader to get the meshes
+    MCMESHTRAN_AbaqusMeshReader aAbaqusReader ;
+    if (aAbaqusReader.loadFile(AbaqusFileName) == Load_failed) {
+        MESSAGE("Read Abaqus file failed !");
+        return false;
+    }
+
+    vector <const MEDCouplingUMesh*> aTmpList = aAbaqusReader.getMeshList();
+    for (int i=0; i< aTmpList.size(); i++ )
+    {
+
+        ParaMEDMEM::MEDCouplingAutoRefCountObjectPtr <ParaMEDMEM::MEDCouplingUMesh> aNewUMesh = const_cast<MEDCouplingUMesh *> (aTmpList[i]);
+        //create field IOR
+        ParaMEDMEM::MEDCouplingUMeshServant *myMeshServant=new ParaMEDMEM::MEDCouplingUMeshServant(aNewUMesh);
+        SALOME_MED::MEDCouplingUMeshCorbaInterface_ptr myUMeshIOR = myMeshServant->_this();
+
+        QString  aTempDir = "/tmp/tmpfilemccad2smesh.med";
+        QFile::remove(aTempDir); //remove the file first if any
+
+        try {
+            engine->export2MED(myUMeshIOR, aTempDir.toLatin1());
+
+            SMESH::DriverMED_ReadStatus aStatus;
+            aSMESHGen->CreateMeshesFromMED(aTempDir.toLatin1(), aStatus);
+            if (aStatus != SMESH::DRS_OK )
+            {
+                MESSAGE("problems in reading!" << aStatus);
+                QFile::remove(aTempDir); //remove if any
+                return false;
+            }
+        }
+        catch (SALOME::SALOME_Exception &ex)
+        {
+            QFile::remove(aTempDir); //remove if any
+            MESSAGE("Export failed: " << ex.details.text);
+            return false;
+        }
+        QFile::remove(aTempDir); //remove if any
+    }
+    return true;
+}
+
+
+
 /*! Called on update of the structure of Data Objects */
 void MCCADGUI_DataModel::build()
 {
@@ -2837,6 +2955,7 @@ void MCCADGUI_DataModel::build()
     setRoot( modelRoot );
     return;
 }
+
 
 void MCCADGUI_DataModel::buildTree()
 
@@ -2923,5 +3042,8 @@ void MCCADGUI_DataModel::buildTree()
     setRoot( modelRoot );
     return;
 }
+
+
+
 
 

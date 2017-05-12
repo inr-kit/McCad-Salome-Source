@@ -1,3 +1,0 @@
-#ifndef _McCadGUI_GuiFactory_HeaderFile
-#include <McCadGUI_GuiFactory.hxx>
-#endif

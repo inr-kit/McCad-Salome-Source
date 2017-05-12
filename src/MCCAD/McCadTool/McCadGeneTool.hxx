@@ -3,6 +3,7 @@
 
 #include <TCollection_AsciiString.hxx>
 #include <QString>
+#include <TopTools_HSequenceOfShape.hxx>
 
 class McCadGeneTool
 {
@@ -24,6 +25,9 @@ public:
 public:
     McCadGeneTool();
     Standard_EXPORT static TCollection_AsciiString ToAsciiString(const QString& theStr);
+    Standard_EXPORT static void WriteFile(TCollection_AsciiString outFileName,
+                                    Handle_TopTools_HSequenceOfShape &shapes);
+    Standard_EXPORT static Handle_TopTools_HSequenceOfShape readFile( TCollection_AsciiString fileName);
 };
 
 #endif // MCCADGENETOOL_HXX

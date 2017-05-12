@@ -31,13 +31,10 @@ public:
 
     /**< Change the float data to interger */
     Standard_EXPORT static void Integer(Standard_Real &theValue);
-
     /**< If the value less than the default tolerance, set it zero */
     Standard_EXPORT static Standard_Boolean IsEqualZero(Standard_Real theValue);
-
     /**< If the value less than tolerance set it zero */
     Standard_EXPORT static void ZeroValue(Standard_Real &theValue, Standard_Real dTolerance);
-
     /**< Reture the max one of the three input values */
     Standard_EXPORT static Standard_Real MaxValue(Standard_Real value1, Standard_Real value2, Standard_Real value3);
 

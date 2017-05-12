@@ -59,6 +59,7 @@
 #include "SALOME_InteractiveObject.hxx"
 #include "SALOMEDSClient_SObject.hxx"
 #include "SALOMEDS_SObject.hxx"
+#include "SALOME_ListIteratorOfListIO.hxx"
 
 
 // QT includes
@@ -221,9 +222,9 @@ void MCCADGUI::createPreferences()
   int init_surf_no = addPreference("Start number Surface with ", ConvertGroup,
                                 LightApp_Preferences::IntSpin, "MCCAD", "init_surf_no" );
   setPreferenceProperty( init_cell_no, "min", 1 );
-  setPreferenceProperty( init_cell_no, "max", 99999 );
+  setPreferenceProperty( init_cell_no, "max", 999999 );
   setPreferenceProperty( init_surf_no, "min", 1 );
-  setPreferenceProperty( init_surf_no, "max", 99999 );
+  setPreferenceProperty( init_surf_no, "max", 999999 );
 
 
   int min_solid_vol = addPreference( "Minimum solid volume", ConvertGroup,
@@ -407,17 +408,24 @@ void MCCADGUI::createPreferences()
 
   int STL_Deflection = addPreference( "Surface triangulation deflection", TetMeshGroup,
                             LightApp_Preferences::DblSpin, "MCCAD", "STL_Deflection" );
-  setPreferenceProperty( STL_Deflection, "min", 0.00005 );
-  setPreferenceProperty( STL_Deflection, "max", 0.001 );
+  setPreferenceProperty( STL_Deflection, "min", 0.00001 );
+  setPreferenceProperty( STL_Deflection, "max", 0.01 );
   setPreferenceProperty( STL_Deflection, "step", 0.0001 );
-  setPreferenceProperty( STL_Deflection, "precision", 5 );
+  setPreferenceProperty( STL_Deflection, "precision", 6 );
 
-  int STL_Coefficient = addPreference( "Surface triangulation coefficient", TetMeshGroup,
-                            LightApp_Preferences::DblSpin, "MCCAD", "STL_Coefficient" );
-  setPreferenceProperty( STL_Coefficient, "min", 0.00005 );
-  setPreferenceProperty( STL_Coefficient, "max", 0.001 );
-  setPreferenceProperty( STL_Coefficient, "step", 0.0001 );
-  setPreferenceProperty( STL_Coefficient, "precision", 5 );
+//  int STL_Coefficient = addPreference( "Surface triangulation coefficient", TetMeshGroup,
+//                            LightApp_Preferences::DblSpin, "MCCAD", "STL_Coefficient" );
+//  setPreferenceProperty( STL_Coefficient, "min", 0.00001 );
+//  setPreferenceProperty( STL_Coefficient, "max", 0.001 );
+//  setPreferenceProperty( STL_Coefficient, "step", 0.0001 );
+//  setPreferenceProperty( STL_Coefficient, "precision", 6 );
+
+  int Vol_Threshold = addPreference( "Allow smallest element volume(mm3)", TetMeshGroup,
+                            LightApp_Preferences::DblSpin, "MCCAD", "Vol_Threshold" );
+  setPreferenceProperty( Vol_Threshold, "min", 0.0 );
+  setPreferenceProperty( Vol_Threshold, "max", 1e9 );
+  setPreferenceProperty( Vol_Threshold, "step", 1 );
+  setPreferenceProperty( Vol_Threshold, "precision", 13 );
 
   int Tet_MeshQuality = addPreference( "Tetgen mesh quality control", TetMeshGroup,
                             LightApp_Preferences::DblSpin, "MCCAD", "Tet_MeshQuality" );
@@ -483,8 +491,8 @@ void MCCADGUI::initialize( CAM_Application* app )
     createAction( unittest,"UnitTest", QIcon(), "UnitTest",
                   "UnitTest", 0, aParent, false, this, SLOT( OnUnitTest() ) );
 
-    createAction( lgImportGeom,"Import OCC file", QIcon(), "Import OCC file",
-                  "Import OCC file", 0, aParent, false, this, SLOT( onImportExport()) );
+    createAction( lgImportGeom,"Import CAD file", QIcon(), "Import CAD file",
+                  "Import CAD file", 0, aParent, false, this, SLOT( onImportExport()) );
 
     createAction( lgCreateComponent,"Create Component", QIcon(), "Create Component",
                   "Create Component", 0, aParent, false, this, SLOT( onOperation() ) );
@@ -556,6 +564,8 @@ void MCCADGUI::initialize( CAM_Application* app )
     createAction( lgExportGeom,"Export geometry", QIcon(), "Export geometry",
                   "Export geometry", 0, aParent, false, this, SLOT( onImportExport() ) );
 
+    createAction( lgImportAbaqus,"Import Abaqus mesh", QIcon(), "Import Abaqus mesh",
+                  "Import Abaqus mesh", 0, aParent, false, this, SLOT( onImportExport() ) );
 
     createAction( lgDisplayGEOMObjInPV,"Display GEOM Object in Paraview", QIcon(), "Display GEOM Object in Paraview",
                   "Display GEOM Object in Paraview", 0, aParent, false, this, SLOT( onDisplayGEOMObjInPVIS() ) );
@@ -596,6 +606,7 @@ void MCCADGUI::initialize( CAM_Application* app )
     // create menus
     int aFileMnu = createMenu( tr( "File" ), -1, -1 );
     createMenu( lgImportGeom, aFileMnu, 10 );
+    createMenu( lgImportAbaqus, aFileMnu, 10 );
     createMenu( lgExportMesh2Abaqus, aFileMnu, 10 );
     createMenu( lgCheckBeforeConvert, aFileMnu, 10 );
     createMenu( lgConvert2MCInput, aFileMnu, 10 );
@@ -747,7 +758,7 @@ void MCCADGUI::initialize( CAM_Application* app )
     mgr->setRule( action( lgSendMesh2SMESH ), rule +
                   " and selcount>0 and isPart and hasMesh");
     mgr->setRule( action( lgImportSMESHObj ), rule +
-                  " and selcount=1 and isSMESHObj");
+                  " and selcount>0 and isSMESHObj");
     mgr->setRule( action( lgClearMesh ), rule +
                   " and selcount>0 and isPart and hasMesh");
     mgr->setRule( action( lgClearEnvelop ), rule +
@@ -1351,7 +1362,7 @@ void   MCCADGUI:: onImportExport()
                                                             tr("Open OCC File"),
                                                             LastDir,
  //                                                           tr("STEP (*.stp, *.step);;All(*.*)"));
-                                                            tr("STEP (*.stp *.step);;BREP (*.brep);;IGES (*.iges *.igs);;All(*.*)"));
+                                                            tr("STEP (*.stp *.step *.STEP);;BREP (*.brep);;IGES (*.iges *.igs);;All(*.*)"));
 
 
             if (fileNames.size() == 0) return;
@@ -1452,6 +1463,39 @@ void   MCCADGUI:: onImportExport()
                 SUIT_MessageBox::information(application()->desktop(), QString("Export geometry"), QString("Export done!"));
             else
                 SUIT_MessageBox::information(application()->desktop(), QString("Export geometry"), QString("Export failed!"));
+
+        } break;
+
+        case lgImportAbaqus:
+        {
+            QStringList fileNames = QFileDialog::getOpenFileNames(getApp()->desktop(),
+                                                            tr("Open Abaqus Files"),
+                                                            LastDir,
+                                                            tr("Abaqus input (*.inp );;All(*.*)"));
+
+
+            if (fileNames.size() == 0) return;
+
+            bool isOk = true;
+            for (int i=0; i<fileNames.size(); i++)
+            {
+                if (fileNames[i].trimmed().isEmpty() || SUIT_Tools::file(fileNames[i]).trimmed().isEmpty())
+                {
+                    SUIT_MessageBox::warning( getApp()->desktop(), QString("Warning"),
+                                              QString( "File directory invalid or name empty!"));
+                    return;
+                }
+                if (!dm->importAbaqus(fileNames[i])) {
+                    MESSAGE("Import file failed!: " << fileNames[i].toStdString());
+                    isOk = false;
+                    return;
+                }
+            }
+
+            if (isOk)
+                SUIT_MessageBox::information(application()->desktop(), QString("Import Abaqus file"), QString("Import done! Find the meshes in SMESH module"));
+            else
+                SUIT_MessageBox::information(application()->desktop(), QString("Import Abaqus file"), QString("Import failed for some files!"));
 
         } break;
 
@@ -1792,7 +1836,7 @@ void    MCCADGUI::onImportGEOMObj()
     if (!dm) return;
     MCCADGUI_ImportObjDialog aImportDialog (myInputPanel, dm);  //!!! temporary. the parent of this dialog should be application->destop()
     myInputPanel->setWidget(&aImportDialog);
-    aImportDialog.SetSourceObjName(aGeomObj->GetName());
+    aImportDialog.SetSourceObjName(QStringList (aGeomObj->GetName()));
     if (aImportDialog.exec() == 1) //if canceled
         return;
 
@@ -1833,20 +1877,31 @@ void    MCCADGUI::onImportSMESHObj()
     }
 //    const LightApp_DataOwner* owner = dynamic_cast<const LightApp_DataOwner*>( anOwnersList[ 0 ].get() );
 
-    Handle(SALOME_InteractiveObject) anIO = aListIO.First();
+//    Handle(SALOME_InteractiveObject) anIO = aListIO.First();
 
     //call the dialog
     MCCADGUI_DataModel * dm = dynamic_cast <MCCADGUI_DataModel *> (dataModel());
     if (!dm) return;
     MCCADGUI_ImportObjDialog aImportDialog (myInputPanel, dm);  //!!! temporary. the parent of this dialog should be application->destop()
     myInputPanel->setWidget(&aImportDialog);
-    aImportDialog.SetSourceObjName(anIO->getName());
+
+    QStringList aNameList, aEntryList;
+    for (  SALOME_ListIteratorOfListIO it( aListIO ) ; it.More(); it.Next() ) {
+      Handle(SALOME_InteractiveObject) io = it.Value();
+      aNameList.append(io->getName());
+      aEntryList.append(io->getEntry());
+    }
+//    aImportDialog.SetSourceObjName(anIO->getName());
+    aImportDialog.SetSourceObjName(aNameList);
+
     if (aImportDialog.exec() == 1) //if canceled
         return;
 
     QStringList aList ;
-    selected(aList, /*multiple*/false);
-    if (dm->assignMesh(aList[0], anIO->getEntry(), anIO->getName()))
+//   selected(aList, /*multiple*/false);
+    selected(aList, /*multiple*/true);
+
+    if (dm->assignMesh(aList/*[0]*/, /*anIO->getEntry()*/ aEntryList, /*anIO->getName()*/ aNameList))
         SUIT_MessageBox::information(application()->desktop(), QString("Import SMESH Object"), QString("Import done!"));
     else
         SUIT_MessageBox::information(application()->desktop(), QString("Import SMESH Object"), QString("Import failed!"));

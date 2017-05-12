@@ -1,3 +1,0 @@
-#ifndef _McCadModelManager_Part_HeaderFile
-#include <McCadModelManager_Part.hxx>
-#endif

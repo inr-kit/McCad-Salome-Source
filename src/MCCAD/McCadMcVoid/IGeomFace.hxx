@@ -46,19 +46,16 @@ public:
     virtual TCollection_AsciiString GetTransfNum() const = 0;   
 
 public:
+
     SurfType GetFaceType() const{ return m_SurfType; }              /**< Get the surface type */
     void SetSurfNum(int iNum){ m_iNum = iNum; }                     /**< Set the number of surface */
     Standard_Integer GetSurfNum(){ return m_iNum; }                 /**< Get the number of surface */
-    // xiugai lei*/
     Standard_Real GetUnit(){return 0.1;}                            /**< Get the unit used */
     void SetUnit(Standard_Real theRatio){m_ScaleRatio = theRatio;}  /**< Set the unit */
 
-    TCollection_AsciiString GetSurfSymb() const{ return m_SurfSymb; }      /**< Get the surface type */
-
-    //Standard_Real GetFstPrmt() const{ return m_FstPrmt; }           /**< Get the first parameter */
-//qiu    vector<Standard_Real> GetPrmtList(){return m_PrmtList;}
-	    vector<Standard_Real> GetPrmtList() const {return m_PrmtList;}
-    Standard_Boolean IsReversed(){return m_bReverse;}
+    TCollection_AsciiString GetSurfSymb() const{ return m_SurfSymb; }       /**< Get the surface type */
+    vector<Standard_Real> GetPrmtList(){return m_PrmtList;}                 /**< Get the coefficients list */
+    Standard_Boolean IsReversed(){return m_bReverse;}                       /**< The surface is reversed or not*/
 
 protected:    
 
@@ -69,13 +66,10 @@ protected:
     Standard_Integer m_iCodeNum;         /**< MaCadExtFace can find the geomtry surface using the number */
     Standard_Real m_ScaleRatio;          /**< The scale ratio according to the unit CAD model used */
 
-    //Standard_Integer m_SurfSeqNum;
-    //Standard_Real m_FstPrmt;
+    TCollection_AsciiString m_SurfSymb;  /**< The surface symbol */
+    vector<Standard_Real> m_PrmtList;    /**< The surface coefficients list */
 
-    TCollection_AsciiString m_SurfSymb;
-    vector<Standard_Real> m_PrmtList;
-
-    Standard_Boolean m_bReverse;         /**< whether the surface has been reversed or not */
+    Standard_Boolean m_bReverse;         /**< The surface has been reversed or not */
 };
 
 #endif // IGEOMFACE_HXX

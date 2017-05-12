@@ -25,19 +25,24 @@ public:
     }
 
     McCadTransfCard();
-    McCadTransfCard(gp_Ax3 theAxis, gp_Pnt theApex);
+    McCadTransfCard(gp_Ax3 theAxis, gp_Pnt theApex);    
 
-    vector<Standard_Real> GetPrmtList();
-    TCollection_AsciiString GetSymb();
+    vector<Standard_Real> GetPrmtList();    /**< Get coefficients list */
+    TCollection_AsciiString GetSymb();      /**< Get the symbol of transform card */
 
-    void SetTrNum(Standard_Integer iNum);
-    Standard_Integer GetTrNum();
+    void SetTrNum(Standard_Integer iNum);   /**< Set the transform card number */
+    Standard_Integer GetTrNum();            /**< Get the transform card number */
 
 private:
 
-    Standard_Integer m_iTrNum;
-    vector<Standard_Real> m_PrmtList;
+    void GenerateTransfCard();              /**< Generate the transform card */
 
+private:
+
+    Standard_Integer m_iTrNum;              /**< Transform card number */
+    vector<Standard_Real> m_PrmtList;       /**< Coefficient list */
+    gp_Ax3 m_Axis;                          /**< The axis of rotated cone or cylinder */
+    gp_Pnt m_pntApex;                       /**< The rotated point */
 };
 
 #endif // MCCADTRANSFCARD_HXX

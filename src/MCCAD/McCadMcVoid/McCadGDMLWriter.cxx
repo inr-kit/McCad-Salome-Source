@@ -172,17 +172,21 @@ void McCadGDMLWriter::MeshShape(const TopoDS_Shape theShape, double & theDeflect
     theDeflection = aDeflection;
 
   // Is shape triangulated?
-  Standard_Boolean alreadymeshed = Standard_True;
-  TopExp_Explorer ex;
-  TopLoc_Location aLoc;
-  for (ex.Init(theShape, TopAbs_FACE); ex.More(); ex.Next()) {
-    const TopoDS_Face& aFace = TopoDS::Face(ex.Current());
-    Handle(Poly_Triangulation) aPoly = BRep_Tool::Triangulation(aFace,aLoc);
-    if(aPoly.IsNull()) {
-  alreadymeshed = Standard_False;
-  break;
-    }
-  }
+//  Standard_Boolean alreadymeshed = Standard_True;
+//  TopExp_Explorer ex;
+//  TopLoc_Location aLoc;
+//  for (ex.Init(theShape, TopAbs_FACE); ex.More(); ex.Next()) {
+//    const TopoDS_Face& aFace = TopoDS::Face(ex.Current());
+//    Handle(Poly_Triangulation) aPoly = BRep_Tool::Triangulation(aFace,aLoc);
+//    if(aPoly.IsNull()) {
+//  alreadymeshed = Standard_False;
+//  break;
+//    }
+//  }
+
+  //the judgement of triangulation is comment out because we would like to mesh it
+  //everytime with different deflection.
+    Standard_Boolean alreadymeshed = Standard_False;  // force to mesh again
 
   if(!alreadymeshed) {
     Bnd_Box B;
@@ -494,26 +498,26 @@ void    McCadGDMLWriter::PrintHalfSpaceSolid(QDomElement & ParentElement,
 
 }
 
-void    McCadGDMLWriter::PrintHalfSpaceSolid(QDomElement & ParentElement,
-                            McCadVoidCell *pVoid, const QString & aName)
-{
-    //build a element
-    QDomElement theElement = m_Doc.createElement(("HalfSpaceSolid"));
-    ParentElement.appendChild(theElement);
-    theElement.setAttribute("name", aName);
-    theElement.setAttribute("lunit", "cm");
+//void    McCadGDMLWriter::PrintHalfSpaceSolid(QDomElement & ParentElement,
+//                            McCadVoidCell *pVoid, const QString & aName)
+//{
+//    //build a element
+//    QDomElement theElement = m_Doc.createElement(("HalfSpaceSolid"));
+//    ParentElement.appendChild(theElement);
+//    theElement.setAttribute("name", aName);
+//    theElement.setAttribute("lunit", "cm");
 
-    //print the surface
-    PrintSurfaces(theElement, pVoid);
+//    //print the surface
+//    PrintSurfaces(theElement, pVoid);
 
-    //print the bounadry box
-    PrintBoundaryBox(theElement, pVoid);
+//    //print the bounadry box
+//    PrintBoundaryBox(theElement, pVoid);
 
-    //print other values (volume size, surface area, polyhedron)
-    PrintVolumeArea(theElement, pVoid, aName);
-    PrintPolyhedronRef(theElement, aName);
+//    //print other values (volume size, surface area, polyhedron)
+//    PrintVolumeArea(theElement, pVoid, aName);
+//    PrintPolyhedronRef(theElement, aName);
 
-}
+//}
 
 
 void    McCadGDMLWriter::PrintSurfaces(QDomElement & ParentElement, McCadConvexSolid *pConvexSolid)
@@ -526,9 +530,51 @@ void    McCadGDMLWriter::PrintSurfaces(QDomElement & ParentElement, McCadConvexS
     QDomElement theElement = m_Doc.createElement(("Surfaces"));
     ParentElement.appendChild(theElement);
 
+    //remove the repeat surface
+    vector<Standard_Integer> IntSurfList;
+    vector<Standard_Integer> UniSurfList;
+    checkRepeatFaces(pConvexSolid,IntSurfList,UniSurfList );
+    for (unsigned int  i = 0; i < IntSurfList.size(); i++)
+    {
+        int iFaceNum = IntSurfList.at(i); //get the surface number
+        int theSense = iFaceNum > 0 ?  1 : -1; //if face number > 0: positive; else negative
+        //using the face number to get the face from list
+
+//        cout <<"iFaceNum   " <<iFaceNum<<endl;
+
+        IGeomFace * pFace = findSurface(abs(iFaceNum) -1); //?? correct?  //SHOULD -1 because iFaceNum start from 1!!
+        if (pFace == NULL)    {
+            QDomComment aComment=   m_Doc.createComment("FatalError: McCadGDMLWriter::Cannot get the surface of number");
+            ParentElement.appendChild(aComment);
+            return;
+        }
+
+        PrintASurface(theElement, pFace, theSense);  //print the surface
+    }
+    for (unsigned int  i = 0; i < UniSurfList.size(); i++)
+    {
+        QDomComment aComment=   m_Doc.createComment("Warning: McCadGDMLWriter::PrintSurfaces does not support Union Auxiliary surface!!");
+        theElement.appendChild(aComment);
+
+        int iFaceNum = UniSurfList.at(i); //get the surface number
+        int theSense = iFaceNum > 0 ?  1 : -1; //if face number > 0: positive; else negative
+        //using the face number to get the face from list
+
+//        cout <<"iFaceNum   " <<iFaceNum<<endl;
+
+        IGeomFace * pFace = findSurface(abs(iFaceNum) -1); //?? correct?  //SHOULD -1 because iFaceNum start from 1!!
+        if (pFace == NULL)    {
+            QDomComment aComment=   m_Doc.createComment("FatalError: McCadGDMLWriter::Cannot get the surface of number");
+            ParentElement.appendChild(aComment);
+            return;
+        }
+
+        PrintASurface(theElement, pFace, theSense);  //print the surface
+    }
+ /*
     for (unsigned int  i = 0; i < (pConvexSolid->GetFaces()).size(); i++)
     {
-        McCadExtFace * pExtFace = (pConvexSolid->GetFaces()).at(i);
+        McCadExtBndFace * pExtFace = (pConvexSolid->GetFaces()).at(i);
         int iFaceNum = pExtFace->GetFaceNum(); //get the surface number
         int theSense = iFaceNum > 0 ?  1 : -1; //if face number > 0: positive; else negative
         //using the face number to get the face from list
@@ -542,17 +588,29 @@ void    McCadGDMLWriter::PrintSurfaces(QDomElement & ParentElement, McCadConvexS
         }
 
         PrintASurface(theElement, pFace, theSense);  //print the surface
-        if (pExtFace->HaveAuxSurf())
+
+        if (pExtFace->HaveAstSurf())
         {
-            for(unsigned int j = 0; j < pExtFace->GetAuxFaces().size(); j++)
+            for(unsigned int j = 0; j < pExtFace->GetAstFaces().size(); j++)
             {
-                McCadExtFace *pAuxFace = pExtFace->GetAuxFaces().at(j);
-                if (pAuxFace->GetAttri() == 1) //union aux surface
+                McCadExtAstFace *pAuxFace = pExtFace->GetAstFaces().at(j);
+                if (pAuxFace->IsSplitFace()) //union aux surface
                 {
-                  QDomComment aComment=   m_Doc.createComment("FatalError: McCadGDMLWriter::PrintSurfaces does not support Union Auxiliary surface!!");
-                  ParentElement.appendChild(aComment);
+                  QDomComment aComment=   m_Doc.createComment("Warning: McCadGDMLWriter::PrintSurfaces does not support Union Auxiliary surface!!");
+                  theElement.appendChild(aComment);
 //                    cout<<"FatalError: McCadGDMLWriter::PrintSurfaces does not support Union Auxiliary surface!! ";
-                    return;
+//2016-04-25 we want to print all the surface anyway
+                  //return;
+                  int iAuxFaceNum = pAuxFace->GetFaceNum();
+                  theSense = iAuxFaceNum >0 ? 1 : -1 ;
+                  IGeomFace * qFace = findSurface(abs(iAuxFaceNum) -1);
+                  if (qFace == NULL)    {
+                      QDomComment aComment=   m_Doc.createComment("FatalError: McCadGDMLWriter::Cannot get the surface of number!");
+                      ParentElement.appendChild(aComment);
+//                        cout<<"FatalError: McCadGDMLWriter::Cannot get the surface of number "<<iFaceNum<<" !! ";
+                      return;
+                  }
+                  PrintASurface(theElement, qFace, theSense);  //print the surface
                 }
                 else  //intersect aux surface
                 {
@@ -571,63 +629,81 @@ void    McCadGDMLWriter::PrintSurfaces(QDomElement & ParentElement, McCadConvexS
                 }
             }
         }
-    }
 
+    }
+*/
 }
 
 
-void    McCadGDMLWriter::PrintSurfaces(QDomElement & ParentElement, McCadVoidCell *pVoid)
-{
-    //get the data
-    McCadGeomData *pData = m_pManager->GetGeomData();
-    assert(pData);
+//void    McCadGDMLWriter::PrintSurfaces(QDomElement & ParentElement, McCadVoidCell *pVoid)
+//{
+//    //get the data
+//    McCadGeomData *pData = m_pManager->GetGeomData();
+//    assert(pData);
 
-    //print the surface element
-    QDomElement theElement = m_Doc.createElement(("Surfaces"));
-    ParentElement.appendChild(theElement);
+//    //print the surface element
+//    QDomElement theElement = m_Doc.createElement(("Surfaces"));
+//    ParentElement.appendChild(theElement);
 
-    for (unsigned int  i = 0; i < (pVoid->GetFaces()).size(); i++)
-    {
-        McCadExtFace * pExtFace = (pVoid->GetFaces()).at(i);
-        int iFaceNum = pExtFace->GetFaceNum(); //get the surface number
-        int theSense = iFaceNum > 0 ?  1 : -1; //if face number > 0: positive; else negative
-        //using the face number to get the face from list
+//    for (unsigned int  i = 0; i < (pVoid->GetBndFaces()).size(); i++)
+//    {
+//        McCadExtBndFace * pExtFace = (pVoid->GetBndFaces()).at(i);
+//        int iFaceNum = pExtFace->GetFaceNum(); //get the surface number
+//        int theSense = iFaceNum > 0 ?  1 : -1; //if face number > 0: positive; else negative
+//        //using the face number to get the face from list
 
-//        cout <<"iFaceNum   " <<iFaceNum<<endl;
+////        cout <<"iFaceNum   " <<iFaceNum<<endl;
 
-        IGeomFace * pFace = findSurface(abs(iFaceNum) -1); //?? correct?
-        if (pFace == NULL)    {
-            cout<<"FatalError: McCadGDMLWriter::Cannot get the surface of number "<<iFaceNum<<" !! ";
-            return;
-        }
+//        IGeomFace * pFace = findSurface(abs(iFaceNum) -1); //?? correct?
+//        if (pFace == NULL)    {
+//            cout<<"FatalError: McCadGDMLWriter::Cannot get the surface of number "<<iFaceNum<<" !! ";
+//            return;
+//        }
 
-        PrintASurface(theElement, pFace, theSense);  //print the surface
-        if (pExtFace->HaveAuxSurf())
-        {
-            for(unsigned int j = 0; j < pExtFace->GetAuxFaces().size(); j++)
-            {
-                McCadExtFace *pAuxFace = pExtFace->GetAuxFaces().at(j);
-                if (pAuxFace->GetAttri() == 1) //union aux surface
-                {
-                    cout<<"FatalError: McCadGDMLWriter::PrintSurfaces does not support Union Auxiliary surface!! ";
-                    return;
-                }
-                else  //intersect aux surface
-                {
-                    int iAuxFaceNum = pAuxFace->GetFaceNum();
-                    theSense = iAuxFaceNum >0 ? 1 : -1 ;
-                    IGeomFace * qFace = findSurface(abs(iFaceNum) -1); //?? correct?
-                    if (qFace == NULL)    {
-                        cout<<"FatalError: McCadGDMLWriter::Cannot get the surface of number "<<iFaceNum<<" !! ";
-                        return;
-                    }
-                    PrintASurface(theElement, qFace, theSense);  //print the surface
-                }
-            }
-        }
-    }
+//        PrintASurface(theElement, pFace, theSense);  //print the surface
+//        if (pExtFace->HaveAstSurf())
+//        {
+//            for(unsigned int j = 0; j < pExtFace->GetAstFaces().size(); j++)
+//            {
+//                McCadExtAstFace *pAuxFace = pExtFace->GetAstFaces().at(j);
+//                if (pAuxFace->IsSplitFace()) //union aux surface
+//                {
+//                    QDomComment aComment=   m_Doc.createComment("Warning: McCadGDMLWriter::PrintSurfaces does not support Union Auxiliary surface!!");
+//                    theElement.appendChild(aComment);
+//  //                    cout<<"FatalError: McCadGDMLWriter::PrintSurfaces does not support Union Auxiliary surface!! ";
+//  //2016-04-25 we want to print all the surface anyway
+//                    //return;
+//                    int iAuxFaceNum = pAuxFace->GetFaceNum();
+//                    theSense = iAuxFaceNum >0 ? 1 : -1 ;
+//                    IGeomFace * qFace = findSurface(abs(iAuxFaceNum) -1);
+//                    if (qFace == NULL)    {
+//                        QDomComment aComment=   m_Doc.createComment("FatalError: McCadGDMLWriter::Cannot get the surface of number!");
+//                        ParentElement.appendChild(aComment);
+//  //                        cout<<"FatalError: McCadGDMLWriter::Cannot get the surface of number "<<iFaceNum<<" !! ";
+//                        return;
+//                    }
+//                    PrintASurface(theElement, qFace, theSense);  //print the surface
+//                }
+//                else  //intersect aux surface
+//                {
+//                    int iAuxFaceNum = pAuxFace->GetFaceNum();
+//                    theSense = iAuxFaceNum >0 ? 1 : -1 ;
+//                    //qiu A BUG HERE!!
+////                    IGeomFace * qFace = findSurface(abs(iFaceNum) -1); //?? correct?
+//                    IGeomFace * qFace = findSurface(abs(iAuxFaceNum) -1); //?? correct?
+//                    if (qFace == NULL)    {
+//                        QDomComment aComment=   m_Doc.createComment("FatalError: McCadGDMLWriter::Cannot get the surface of number!");
+//                        ParentElement.appendChild(aComment);
+////                        cout<<"FatalError: McCadGDMLWriter::Cannot get the surface of number "<<iFaceNum<<" !! ";
+//                        return;
+//                    }
+//                    PrintASurface(theElement, qFace, theSense);  //print the surface
+//                }
+//            }
+//        }
+//    }
 
-}
+//}
 
 IGeomFace *   McCadGDMLWriter::findSurface(const int & aIdx)
 {
@@ -791,19 +867,20 @@ void    McCadGDMLWriter::PrintASurface(QDomElement & ParentElement, IGeomFace * 
         QDomElement theElement = m_Doc.createElement(("Cone"));
         theElement.setAttribute("Sense", theSense);
         theElement.setAttribute("Axis","Y");
-        theElement.setAttribute("X",RoundDouble(pFace->GetPrmtList().at(0)));
-        theElement.setAttribute("Y",RoundDouble(pFace->GetPrmtList().at(1)));
-        theElement.setAttribute("Z",RoundDouble(pFace->GetPrmtList().at(2)));
-        theElement.setAttribute("T2",RoundDouble(pFace->GetPrmtList().at(3)));
+        theElement.setAttribute("X",0.);
+        theElement.setAttribute("Y",RoundDouble(pFace->GetPrmtList().at(0)));
+        theElement.setAttribute("Z",0.);
+        theElement.setAttribute("T2",RoundDouble(pFace->GetPrmtList().at(1)));
         ParentElement.appendChild(theElement);
     }
     else if (aSymb == "KZ") {
         QDomElement theElement = m_Doc.createElement(("Cone"));
         theElement.setAttribute("Sense", theSense);
-        theElement.setAttribute("Axis","Y");
+//        theElement.setAttribute("Axis","Y"); //BUG 2016-03-23!!
+        theElement.setAttribute("Axis","Z");
         theElement.setAttribute("X",0.);
-        theElement.setAttribute("Y",RoundDouble(pFace->GetPrmtList().at(0)));
-        theElement.setAttribute("Z",0.);
+        theElement.setAttribute("Y",0.);
+        theElement.setAttribute("Z",RoundDouble(pFace->GetPrmtList().at(0)));
         theElement.setAttribute("T2",RoundDouble(pFace->GetPrmtList().at(1)));
         ParentElement.appendChild(theElement);
     }
@@ -811,10 +888,10 @@ void    McCadGDMLWriter::PrintASurface(QDomElement & ParentElement, IGeomFace * 
         QDomElement theElement = m_Doc.createElement(("Cone"));
         theElement.setAttribute("Sense", theSense);
         theElement.setAttribute("Axis","X");
-        theElement.setAttribute("X",0.);
-        theElement.setAttribute("Y",0.);
-        theElement.setAttribute("Z",RoundDouble(pFace->GetPrmtList().at(0)));
-        theElement.setAttribute("T2",RoundDouble(pFace->GetPrmtList().at(1)));
+        theElement.setAttribute("X",RoundDouble(pFace->GetPrmtList().at(0)));
+        theElement.setAttribute("Y",RoundDouble(pFace->GetPrmtList().at(1)));
+        theElement.setAttribute("Z",RoundDouble(pFace->GetPrmtList().at(2)));
+        theElement.setAttribute("T2",RoundDouble(pFace->GetPrmtList().at(3)));
         ParentElement.appendChild(theElement);
     }
     else if (aSymb == "K/Y") {
@@ -920,18 +997,24 @@ void    McCadGDMLWriter::PrintBoundaryBox(QDomElement & ParentElement,  TopoDS_S
     Bnd_Box theBB;
     BRepBndLib::Add(*pConvexSolid, theBB);
 //    theBB.SetGap(0.0);  //better to set a small gap
-    theBB.SetGap(0.001);
+//    theBB.SetGap(0.001); //!! this does not work very well!!
     Standard_Real Xmin, Ymin, Zmin, Xmax, Ymax, Zmax;
     theBB.Get(Xmin, Ymin, Zmin, Xmax, Ymax, Zmax);
+    Standard_Real MarginX = (Xmax - Xmin)/1000;
+    Standard_Real MarginY = (Ymax - Ymin)/1000;
+    Standard_Real MarginZ = (Zmax - Zmin)/1000;
 
     QDomElement LowerPoint = m_Doc.createElement(("LowerPoint"));
     QDomElement UpperPoint = m_Doc.createElement(("UpperPoint"));
-    LowerPoint.setAttribute("x", Xmin/10); //unit cm
-    LowerPoint.setAttribute("y", Ymin/10);
-    LowerPoint.setAttribute("z", Zmin/10);
-    UpperPoint.setAttribute("x", Xmax/10);
-    UpperPoint.setAttribute("y", Ymax/10);
-    UpperPoint.setAttribute("z", Zmax/10);
+    //2016-03-29 here we increase an obsolute margin of 0.1 cm
+    // in order to prevent bounding "outside" checking failure for
+    //tiny geometries which are far from the global origin
+    LowerPoint.setAttribute("x", (Xmin-MarginX)/10 -0.1); //unit convert mm->cm
+    LowerPoint.setAttribute("y", (Ymin-MarginY)/10 -0.1);
+    LowerPoint.setAttribute("z", (Zmin-MarginZ)/10 -0.1);
+    UpperPoint.setAttribute("x", (Xmax+MarginX)/10 +0.1);
+    UpperPoint.setAttribute("y", (Ymax+MarginY)/10 +0.1);
+    UpperPoint.setAttribute("z", (Zmax+MarginZ)/10 +0.1);
 
     theElement.appendChild(LowerPoint);
     theElement.appendChild(UpperPoint);
@@ -1137,4 +1220,75 @@ QString   McCadGDMLWriter::RoundDouble(const double & aDouble)
     //round the digit to 7
     return QString::number(aDouble, 'f', 7);
 }
+/** ********************************************************************
+* @brief Find the repeated surface number at the list,if there are
+*        repeated surface number, do not add it into number list
+*
+* @param  int iFaceNum, vector<Standard_Integer> & list
+* @return Standard_Boolean
+*
+* @date 31/8/2012
+* @author  Lei Lu
+***********************************************************************/
+Standard_Boolean FindRepeatCell(int iFaceNum, vector<Standard_Integer> & list)
+{
+    Standard_Boolean bRepeat = Standard_False;
+    for(int i = 0 ; i<list.size(); i++)
+    {
+        if(list.at(i) == iFaceNum)
+        {
+            bRepeat = Standard_True;
+        }
+    }
+
+    return bRepeat;
+}
+void      McCadGDMLWriter::checkRepeatFaces(McCadConvexSolid *& pSolid,
+                                            vector<Standard_Integer> & IntSurfList, vector<Standard_Integer> UniSurfList)
+{
+
+    //copy from McCadMcnpWriter::GetCellExpn
+    /// Generate the surface number list and remove the repeated surfaces
+    for (unsigned int i = 0; i < (pSolid->GetFaces()).size(); i++)
+    {
+        McCadExtBndFace * pExtFace = (pSolid->GetFaces()).at(i);
+        Standard_Integer iFaceNum = pExtFace->GetFaceNum();
+
+        if(!FindRepeatCell(iFaceNum, IntSurfList))
+        {
+            IntSurfList.push_back(iFaceNum);
+        }
+
+        if (pExtFace->HaveAstSurf())
+        {
+            for(unsigned int j = 0; j < pExtFace->GetAstFaces().size(); j++)
+            {
+                McCadExtAstFace *pAstFace = pExtFace->GetAstFaces().at(j);
+                Standard_Integer iAstFaceNum = pAstFace->GetFaceNum();
+
+                if (pAstFace->IsSplitFace())
+                {
+                    if(!FindRepeatCell(iAstFaceNum,UniSurfList))
+                    {
+                        UniSurfList.push_back(iAstFaceNum);
+                    }
+                }
+                else
+                {
+                    if(!FindRepeatCell(iAstFaceNum,IntSurfList))
+                    {
+                        IntSurfList.push_back(iAstFaceNum);
+                    }
+                }
+            }
+            if(UniSurfList.size() == 1)
+            {
+                cout<<"WARNING!!: found a single Union Asistant surface!!"<<endl;
+//                IntSurfList.push_back(UniSurfList.at(0));
+            }
+        }
+    }
+
+}
+
 

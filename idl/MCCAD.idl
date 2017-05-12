@@ -231,8 +231,10 @@ typedef double FixArray[3];
 //        void        unittest();
 
         //generate tetrahedral mesh using Tetgen
-        boolean     generateTetgenMesh(in Part aPart, in double aDeflection, in double aCoefficient, in double aMeshQuality) raises (SALOME::SALOME_Exception);
-        boolean     generateNetgenMesh(in Part aPart, in double aDeflection, in double aCoefficient) raises (SALOME::SALOME_Exception);
+//        boolean     generateTetgenMesh(in Part aPart, in double aDeflection, in double aCoefficient, in double aMeshQuality) raises (SALOME::SALOME_Exception);
+//        boolean     generateNetgenMesh(in Part aPart, in double aDeflection, in double aCoefficient) raises (SALOME::SALOME_Exception);
+boolean     generateTetgenMesh(in Part aPart, in double aDeflection, in double aVolThreshold, in double aMeshQuality) raises (SALOME::SALOME_Exception);
+boolean     generateNetgenMesh(in Part aPart, in double aDeflection, in double aVolThreshold) raises (SALOME::SALOME_Exception);
 
         //export geometry to brep/step/iges file
         void        exportGeom(in BaseObjList aBaseObjList, in string FileName);

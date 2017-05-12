@@ -24,24 +24,28 @@ Standard_EXPORT    McCadTripoliWriter();
 Standard_EXPORT    McCadTripoliWriter(Standard_Boolean bMat, Standard_Boolean bVoid);
 Standard_EXPORT    ~McCadTripoliWriter();
 
-//private: //qiu
+//qiu private:
 protected:
 
     Standard_Integer m_virtualCellNum;  /**< The initial number of virtual cell */
     map<TCollection_AsciiString,TCollection_AsciiString> m_mapSymb;
 
 public:
-Standard_EXPORT    void SetVirtCellNum(Standard_Integer theNum);       /**< Set the initial virtual cell number */
-Standard_EXPORT    void PrintFile();                                   /**< Print the file */
-Standard_EXPORT    void PrintHeadDesc(Standard_OStream& theStream);    /**< Print the head */
-Standard_EXPORT    void PrintCellDesc(Standard_OStream& theStream);    /**< Print the cell card */
-Standard_EXPORT    void PrintVoidDesc(Standard_OStream& theStream);    /**< Print the void card */
-Standard_EXPORT    void PrintSurfDesc(Standard_OStream& theStream);    /**< Print the surfaces list */
-Standard_EXPORT    void PrintTrsfDesc(Standard_OStream& theStream);    /**< Print the transform card */
-Standard_EXPORT    void PrintMatCard(Standard_OStream& theStream);     /**< Print the material card */
+Standard_EXPORT    virtual void SetVirtCellNum(Standard_Integer theNum);       /**< Set the initial virtual cell number */
+//qiu add "const" because they are used in the printFile() const
+Standard_EXPORT    virtual void PrintCellDesc(Standard_OStream& theStream)  ;         /**< Print the cell card */
+Standard_EXPORT    virtual void PrintVoidDesc(Standard_OStream& theStream) ;         /**< Print the void card */
+//qiu comment "const" because PrintCellDesc is not a const method
+Standard_EXPORT    virtual void PrintFile()/*const*/;                                   /**< Print the file */
+Standard_EXPORT    virtual void PrintHeadDesc(Standard_OStream& theStream)const;    /**< Print the head */
+Standard_EXPORT    virtual void PrintSurfDesc(Standard_OStream& theStream)const;    /**< Print the surfaces list */
+Standard_EXPORT    virtual void PrintTrsfDesc(Standard_OStream& theStream)const;    /**< Print the transform card */
+Standard_EXPORT    virtual void PrintMatCard(Standard_OStream& theStream)const;     /**< Print the material card */
+Standard_EXPORT    virtual void PrintVolumeCard(Standard_OStream& theStream)const;  /**< Print the volume card */
 
-//private: //qiu
+//qiu private:
 protected:
+
 
     /**< Print the outer spaces beside void cells and material cells */
 Standard_EXPORT    void PrintOutSpace(Standard_OStream& theStream);
@@ -53,9 +57,11 @@ Standard_EXPORT    vector<McCadTripoliCell *> GenTripoliCellList(McCadSolid *& p
 Standard_EXPORT    vector<McCadTripoliCell *> GenTripoliVoidCellList(McCadVoidCell *& pVoidCell);
     /** Generate the outer space tripoli cell list */
 Standard_EXPORT    vector<McCadTripoliCell *> GenOuterSpaceList(McCadVoidCell *& pVoidCell);
-
-Standard_EXPORT    vector<Standard_Real> GetSurfPrmt(IGeomFace *& pFace);  /**< Get the parameter list of a surface */
-Standard_EXPORT    TCollection_AsciiString GetSurfSymb(IGeomFace *& pFace);/**< Get the type of surface */
+    /**< Find in the cell number list, are there any repeated cells */
+Standard_EXPORT    Standard_Boolean FindRepeatCell(int iFaceNum, vector<Standard_Integer> & list);
+//qiu add const because they are used in const PrintSurfDesc()
+Standard_EXPORT    vector<Standard_Real> GetSurfPrmt(IGeomFace *& pFace)const;  /**< Get the parameter list of a surface */
+Standard_EXPORT    TCollection_AsciiString GetSurfSymb(IGeomFace *& pFace) const;/**< Get the type of surface */
 
 };
 

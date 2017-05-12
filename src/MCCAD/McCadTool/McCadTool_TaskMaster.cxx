@@ -23,7 +23,7 @@ void McCadTool_TaskMaster::Destroy()
 
 void McCadTool_TaskMaster::SetView(const Handle(McCadCom_CasView)& theView)
 {
-	myView = theView;
+    myView = theView;
 }
 
 Handle(McCadCom_CasView) McCadTool_TaskMaster::GetView() const

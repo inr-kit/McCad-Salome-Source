@@ -117,6 +117,7 @@ protected:
          lgMarkAllAsDecomposed        =1115,
          lgMarkAllAsUndecomposed        =1116,
 
+         lgImportAbaqus        =1117,
 
          lgExperiment              =1999
 

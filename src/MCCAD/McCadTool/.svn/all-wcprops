@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 43
+/svn/mccad/!svn/ver/159/trunk/src/McCadTool
+END
+McCadTool_ListNodeOfListOfTask_0.cxx
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/mccad/!svn/ver/8/trunk/src/McCadTool/McCadTool_ListNodeOfListOfTask_0.cxx
+END
+McCadTool_ListIteratorOfListOfTask_0.cxx
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/mccad/!svn/ver/8/trunk/src/McCadTool/McCadTool_ListIteratorOfListOfTask_0.cxx
+END
+McCadTool_TaskMaster.cxx
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/mccad/!svn/ver/159/trunk/src/McCadTool/McCadTool_TaskMaster.cxx
+END
+McCadTool_ListOfTask_0.cxx
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/mccad/!svn/ver/8/trunk/src/McCadTool/McCadTool_ListOfTask_0.cxx
+END
+McCadTool_Task.cxx
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/mccad/!svn/ver/8/trunk/src/McCadTool/McCadTool_Task.cxx
+END
+McCadTool_TaskHistory.cxx
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/mccad/!svn/ver/8/trunk/src/McCadTool/McCadTool_TaskHistory.cxx
+END
+McCadTool_BooleanUnion.cxx
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/mccad/!svn/ver/8/trunk/src/McCadTool/McCadTool_BooleanUnion.cxx
+END

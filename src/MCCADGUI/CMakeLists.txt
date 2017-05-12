@@ -25,7 +25,8 @@ INCLUDE_DIRECTORIES(
   ${KERNEL_INCLUDE_DIRS}
   ${VTK_INCLUDE_DIRS}
   ${PROJECT_BINARY_DIR}/idl
-  ${PROJECT_SOURCE_DIR}/src/MCCAD/McCadHeaders  #sorry, just temporary...
+#  ${PROJECT_SOURCE_DIR}/src/MCCAD/McCadHeaders  #sorry, just temporary...
+  ${PROJECT_BINARY_DIR}/src/MCCADGUI  #sorry, just temporary...
 # ${IDL_INCLUDE_DIRS}
   ${QT_INCLUDES}
   ${MED_INCLUDE_DIRS}
@@ -91,26 +92,6 @@ SET(_link_LIBRARIES
   ${GEOM_GEOM}
   )
 
-# --- headers ---
-
-SET(MCCAD_HEADERS
-        MCCADGUI.h
-        MCCADGUI_DataModel.h
-        MCCADGUI_DataObject.h
-        MCCADGUI_Operation.h
-        MCCADGUI_Selection.h
-        MCCADGUI_OperationImpl.h
-        MCCADGUI_Dialogs.h
-        MCCADGUI_Displayer.h
-        S_McCadSolid.hxx
-        S_McCadVoidCellManager.hxx
-        S_McCadMcnpWriter.hxx
-        S_McCadGeomData.hxx
-        S_McCadTripoliWriter.hxx
-        S_McCadGDMLWriter.hxx
-  )
-
-
 
 # uic files / to be processed by pyuic
 SET(_pyuic_files
@@ -135,6 +116,29 @@ SET(_moc_HEADERS
 # sources / moc wrappings
 QT4_WRAP_CPP(_moc_SOURCES ${_moc_HEADERS})
 
+
+# --- headers ---
+
+SET(MCCAD_HEADERS
+        MCCADGUI.h
+        MCCADGUI_DataModel.h
+        MCCADGUI_DataObject.h
+        MCCADGUI_Operation.h
+        MCCADGUI_Selection.h
+        MCCADGUI_OperationImpl.h
+        MCCADGUI_Dialogs.h
+        MCCADGUI_Displayer.h
+        S_McCadSolid.hxx
+        S_McCadVoidCellManager.hxx
+        S_McCadMcnpWriter.hxx
+        S_McCadGeomData.hxx
+        S_McCadTripoliWriter.hxx
+        S_McCadGDMLWriter.hxx
+        MCMESHTRAN_AbaqusMeshReader.hxx
+  )
+
+
+
 # sources / to compile
 
 # --- sources ---
@@ -156,6 +160,8 @@ SET(MCCAD_SOURCES
         S_McCadGeomData.cxx
         S_McCadTripoliWriter.cxx
         S_McCadGDMLWriter.cxx
+        MCMESHTRAN_AbaqusMeshReader.cxx
+  ${_uic_HEADERS}
   ${_moc_SOURCES}
   ${_rcc_SOURCES}
   )

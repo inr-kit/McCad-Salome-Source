@@ -265,12 +265,13 @@ void  S_McCadGDMLWriter::PrintTessellatedSolid(QDomElement & ParentElement, cons
              .elementsByTagName("define").at(0).toElement();
     if (DefineElement.isNull())
         cout <<"the Define elemenet is null!" <<endl;
-    else
-        cout <<"the Name : " <<DefineElement.nodeName().toStdString()<<endl;
+//    else
+//        cout <<"the Name : " <<DefineElement.nodeName().toStdString()<<endl;
 
     SUIT_Session* session = SUIT_Session::session();
     SUIT_ResourceMgr* resMgr = session->resourceMgr();
-    Standard_Real aDeflection= resMgr->doubleValue("MCCAD","STL_Coefficient", 0.001);
+//    Standard_Real aDeflection= resMgr->doubleValue("MCCAD","STL_Coefficient", 0.001); //STL_Coefficient is removed!!
+    Standard_Real aDeflection= resMgr->doubleValue("MCCAD","STL_Deflection", 0.001);
 
     TopoDS_Shape theShape = aShape;
     double  theDeflection = aDeflection;//temperory

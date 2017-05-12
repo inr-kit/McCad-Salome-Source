@@ -61,11 +61,15 @@ void McCadVoidCellManager::Process()
 {
     // Add by Lei 12/11/2013 Load the material XML file.
     //TCollection_AsciiString material_file = "material.xml";
-    //ReadMatData(material_file);
-    //
+    //ReadMatData(material_file);      
+    if(this->GenVoid())
+    {
+        McCadVoidGenerator *pVoidGen = new McCadVoidGenerator(this);
+        pVoidGen->Process();
 
-    McCadVoidGenerator *pVoidGen = new McCadVoidGenerator(this);
-    pVoidGen->Process();
+        delete pVoidGen;
+        pVoidGen = NULL;
+    }
 
     m_pGeomData->SortSurface();
     m_pGeomData->UpdateFaceNum();
@@ -80,7 +84,6 @@ void McCadVoidCellManager::Process()
     {
         pWriter = new McCadMcnpWriter();
     }
-
     //qiu add GDML option
     else if (m_Convertor == "GDML")
     {
@@ -92,8 +95,11 @@ void McCadVoidCellManager::Process()
         pWriter->SetMaterial(m_bHaveMaterial);
         pWriter->SetVoid(m_bGenerateVoid);
         pWriter->SetManager(this);
-        pWriter->SetFileName(m_OutFileName);
+        pWriter->SetFileName(m_OutFileName);         
         pWriter->PrintFile();
+
+        delete pWriter;
+        pWriter == NULL;
     }
 
     cout<<endl;

@@ -29,6 +29,7 @@ public:
     //void SetMatDensity(Standard_Real theDensity);
     double GetMatDensity(){return m_Density;};
     void SetMaterial(int theID, QString theName, double theDensity, QString theMatCard);
+//qiu add new function
     void SetMatName(QString theName) {m_Name = theName;}
 };
 

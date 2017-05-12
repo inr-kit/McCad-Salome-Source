@@ -25,7 +25,7 @@ McCadGeomSphere::McCadGeomSphere(const GeomAdaptor_Surface & theSurface)
     m_SurfType = surfSphere ;                         // The surface is a sphere
 
     gp_Sphere sphere = theSurface.Sphere();           // Get the geometry of sphere
-    sphere.Scale(gp_Pnt(0,0,0),GetUnit());              // Scale the face based on unit CAD model used
+    sphere.Scale(gp_Pnt(0,0,0),GetUnit());            // Scale the face based on unit CAD model used
 
     m_Radius = sphere.Radius();                       // Get the radius
     m_Center = sphere.Location();                     // Get the center of sphere
@@ -143,10 +143,10 @@ Standard_Boolean McCadGeomSphere::IsEqual(IGeomFace *& theSurf)
     assert(pSphere);
 
     Standard_Real dis_tol = McCadConvertConfig::GetTolerence();
-    Standard_Real angle_tol = 1.0e-3; //McCadConvertConfig::GetTolerence();
+    //Standard_Real angle_tol = 1.0e-3*M_PI; //McCadConvertConfig::GetTolerence();
 
     // If the center and radius is same, the two cylinder can be treated as same cylinder
-    if( m_Center.IsEqual(pSphere->GetCenter(), angle_tol )
+    if( m_Center.IsEqual(pSphere->GetCenter(), dis_tol )
             && fabs(m_Radius - pSphere->GetRadius()) < dis_tol )
     {
         return Standard_True;
@@ -190,7 +190,7 @@ Standard_Real McCadGeomSphere::GetRadius() const
 
 
 /** ********************************************************************
-* @brief
+* @brief Clean the generated objects
 *
 * @param
 * @return
@@ -206,10 +206,10 @@ void McCadGeomSphere::CleanObj() const
 
 
 /** ********************************************************************
-* @brief
+* @brief Compared with other faces, get the priorites for surface sorting.
 *
-* @param
-* @return
+* @param const IGeomFace *& theGeoFace
+* @return Standard_Boolean
 *
 * @date 31/8/2012
 * @author  Lei Lu
@@ -224,7 +224,8 @@ Standard_Boolean McCadGeomSphere::Compare(const IGeomFace *& theGeoFace)
     else if ( McCadConvertConfig::GetSurfSequNum(m_SurfSymb)
                  == McCadConvertConfig::GetSurfSequNum(theGeoFace->GetSurfSymb()))
     {
-        if ( m_PrmtList[0] < theGeoFace->GetPrmtList()[0])
+//qiu        if ( m_PrmtList[0] < theGeoFace->GetPrmtList()[0])
+        if ( m_PrmtList[0] < const_cast<IGeomFace *&>(theGeoFace)->GetPrmtList()[0])
         {
             return Standard_True;
         }
@@ -240,8 +241,15 @@ Standard_Boolean McCadGeomSphere::Compare(const IGeomFace *& theGeoFace)
 }
 
 
-
-
+/** ********************************************************************
+* @brief Get the transform card
+*
+* @param
+* @return TCollection_AsciiString
+*
+* @date 31/8/2012
+* @author  Lei Lu
+************************************************************************/
 TCollection_AsciiString McCadGeomSphere::GetTransfNum()const
 {
     return "";

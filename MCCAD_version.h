@@ -26,7 +26,7 @@
   MCCAD_VERSION is (major << 16) + (minor << 8) + patch.
 */
 
-#define MCCAD_VERSION_STR "0.5.0"
+#define MCCAD_VERSION_STR "0.5.1"
 #define MCCAD_VERSION     0x000300
 
 #endif // __MCCAD_VERSION_H__

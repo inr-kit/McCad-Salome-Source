@@ -124,6 +124,22 @@ void S_McCadMcnpWriter::PrintCellDesc(Standard_OStream& theStream)
     theStream<<"c "<<endl;
 
     Standard_Integer iCellNum = McCadConvertConfig::GetInitCellNum();   // Get the initial cell number.
+	
+	Standard_Integer iTotalNum = pData->m_SolidList.size() + iCellNum;
+    Standard_Integer iWidth = TCollection_AsciiString(iTotalNum).Length();
+
+    iWidth < 6? iWidth = 6: iWidth += 1;
+    m_iCellNumWidth = iWidth;
+    m_iMatWidth = 14;
+	
+	if (m_bHaveMaterial)
+	{
+		m_iCellMatWidth = m_iCellNumWidth+m_iMatWidth;
+	}
+	else
+	{
+		m_iCellMatWidth = m_iCellNumWidth + 5;
+	}	    	
 
     SUIT_Session* session = SUIT_Session::session();
     SUIT_ResourceMgr* resMgr = session->resourceMgr();
@@ -160,20 +176,20 @@ void S_McCadMcnpWriter::PrintCellDesc(Standard_OStream& theStream)
         if (!pSolid->GetRemark().trimmed().isEmpty())  //qiu Output remark
             theStream<<"  $"<<pSolid->GetRemark().trimmed().toStdString()<<endl;
         else
-            theStream<<endl;
-
+            theStream<<endl;	
+			
         //output cell num, material and density
         theStream.setf(ios::left);
-        theStream<<setw(6)<<iCellNum;                   // Output the cell number.
+        theStream<<setw(m_iCellNumWidth)<<iCellNum;                   // Output the cell number.
         theStream<<setw(4)<<pSolid->GetID();            // Output the material number.
 //qiu        if(!m_bHaveMaterial)
         if (pSolid->GetID() == 0) //if no material
         {
-            theStream<<fixed<<setprecision(7)<<setw(1)<<"";
+            theStream<<fixed<<setprecision(4)<<setw(1)<<"";
         }
         else
         {
-            theStream<<fixed<<setprecision(7)<<setw(10)<<pSolid->GetDensity();  // Output the density.
+            theStream<<fixed<<setprecision(4)<<setw(10)<<pSolid->GetDensity();  // Output the density.
         }
 
         //output cell description
@@ -187,14 +203,27 @@ void S_McCadMcnpWriter::PrintCellDesc(Standard_OStream& theStream)
             TCollection_AsciiString strCellDesc = GetCellExpn(pConvexSolid);// qiu using the new updates
             strCellDesc.LeftAdjust();   // Trim the left and right space characters of string
             strCellDesc.RightAdjust();
+//qiu replace & with enter and white space, & indicate a new-line
+            QString QstrCellDesc = strCellDesc.ToCString();
+
+			if (m_bHaveMaterial)
+			{
+				QstrCellDesc.replace("&","\n                    ");
+			}
+			else
+			{
+				QstrCellDesc.replace("&","\n           ");
+			}
 
             if ( j == 0 )
             {
-                theStream<<"("<<strCellDesc<<")"<<endl;
+ //               theStream<<"("<<strCellDesc<<")"<<endl;
+                theStream<<"("<<QstrCellDesc.toStdString()<<")"<<endl;
             }
             else
             {
-                theStream<<setw(20)<<""<<":("<<strCellDesc<<")"<<endl;
+//                theStream<<setw(20)<<""<<":("<<strCellDesc<<")"<<endl;
+                theStream<<setw(m_iCellMatWidth)<<""<<":("<<QstrCellDesc.toStdString()<<")"<<endl;
             }
         }
 
@@ -209,9 +238,9 @@ void S_McCadMcnpWriter::PrintCellDesc(Standard_OStream& theStream)
 //qiu        }
         //qiu output importance and additive card
         if (pSolid->GetID() == 0)
-            theStream<<setw(11)<<"";
+            theStream<<setw(m_iCellNumWidth)<<"";
         else
-            theStream<<setw(20)<<"";
+            theStream<<setw(m_iCellMatWidth)<<"";
         int aIMPn = pSolid->GetImportances()[0];
         int aIMPp = pSolid->GetImportances()[1];
 //        int aIMPe = pSolid->GetImportances()[2];

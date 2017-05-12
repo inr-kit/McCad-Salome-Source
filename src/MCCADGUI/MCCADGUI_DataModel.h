@@ -117,7 +117,7 @@ public:
   bool                  sendShape2GEOM(const SALOMEDS::TMPFile& aShapeStream, const QString &aName);
   bool                  assignShape(const QString& aEntry, const TopoDS_Shape& aShape, const QString &aName = QString());
   bool                  sendMesh2SMESH(const QStringList& aList);
-  bool                  assignMesh(const QString& aEntry, const QString & aSMESHEntry  , const QString &aName);
+  bool                  assignMesh(const QStringList& aEntryList, const QStringList & aSMESHEntryList  , const QStringList &aNameList);
   bool                  clearMesh (const QStringList& aList);
   bool                  clearEnvelop (const QStringList& aList);
   bool                  assignImportance(const QStringList& aList, MCCAD_ORB::FixArray  aIMP);
@@ -146,6 +146,9 @@ public:
   bool                  markAllIfDecomposed(const bool & isDecomposed);
   bool                  markIfDecomposed(const QStringList& aList, const bool & isDecomposed);
   bool                  markIfDecomposed(const DataObjectList & aObjList, const bool & isDecomposed);
+
+
+  bool                  importAbaqus(const QString &AbaqusFileName) ;
 
 
 

@@ -62,7 +62,8 @@
 #include <gp_Vec.hxx>
 
 //MCCAD includes
-#include <McCadConvertTools_Convertor.hxx>
+//#include <McCadConvertTools_Convertor.hxx>
+#include "../MCCAD/McCadDecompose/McCadDecompose.hxx"
 
 
 //SALOME
@@ -82,6 +83,8 @@
 #include <algorithm>
 #include <QFile>
 #include <QFileInfo>
+
+//#include <thread>
 
 using namespace std;
 //TETGEN
@@ -770,6 +773,7 @@ MCCAD_ORB::PartList*   MCCAD::explodePart(MCCAD_ORB::Part_ptr aPart) throw (SALO
             MCCAD_ORB::FixArray_var aIMP = aPart->getImportance();
             aNewPart->setImportance(aIMP);
             aNewPart->setShape(tmpSol);;
+            aNewPart->setIsDecomposed(aPart->getIsDecomposed());
 
             aPartList->length(cnt); //increase
 //            (*aPartList)[cnt-1] = aNewPart._retn(); //append the part corba reference
@@ -811,6 +815,7 @@ MCCAD_ORB::Part_ptr MCCAD::fuseParts(const MCCAD_ORB::PartList& aPartList, const
     BRep_Builder aBuilder;
     //make a compound and return
     aBuilder.MakeCompound (aCompound);
+    bool isDecomposed = true;
     for (int i = 0; i < aPartList.length(); i++)
     {
         if (!CORBA::is_nil(aPartList[i]))
@@ -818,9 +823,13 @@ MCCAD_ORB::Part_ptr MCCAD::fuseParts(const MCCAD_ORB::PartList& aPartList, const
             TopoDS_Shape* aShape = (TopoDS_Shape*)( aPartList[i]->getShapePointer());
             if (aShape != NULL)
                 aBuilder.Add (aCompound, *aShape);
+
+            if (aPartList[i]->getIsDecomposed() == false)
+                isDecomposed = false;
         }
     }
     aNewPart->setShapeStream(*Shape2Stream(aCompound));
+    aNewPart->setIsDecomposed(isDecomposed);
     return  aNewPart._retn();
 }
 
@@ -854,11 +863,24 @@ CORBA::Boolean MCCAD::decomposePart(MCCAD_ORB::Part_ptr aPart)
 
     //decompose the shape
     Handle_TopTools_HSequenceOfShape aShapeList = new TopTools_HSequenceOfShape();
-    aShapeList = decomposeShape(*aShape) ;
-    if (aShapeList == NULL) {
-        aPart->setIsDecomposed(false);
-        return false;
+    Handle_TopTools_HSequenceOfShape aErrShapeList = new TopTools_HSequenceOfShape();
+
+//    aShapeList = decomposeShape(*aShape) ;
+//    if (aShapeList == NULL) {
+    bool isOk;
+   if (!decomposeShape(*aShape, aShapeList, aErrShapeList) ) {
+//        aPart->setIsDecomposed(false);
+//        return false;
+        aShapeList->Append(aErrShapeList);
+        isOk = false;
     }
+   else    {   //set the decomposed flag as true
+//       aPart->setIsDecomposed(true);
+       isOk = true;
+   }
+
+
+
     //make as a compound and set it for the part as new shape
     TopoDS_Compound aCompound;
     BRep_Builder aBuilder;
@@ -870,9 +892,10 @@ CORBA::Boolean MCCAD::decomposePart(MCCAD_ORB::Part_ptr aPart)
     if (!aCompound.IsNull()) {
         aPart->setShapeStream(*Shape2Stream(aCompound));
     }
-    //set the decomposed flag as true
-    aPart->setIsDecomposed(true);
-    return true;
+
+    aPart->setIsDecomposed(isOk);//20160829 this should be done at the end!! because setShapeStream overwrites myIsDecomposed.
+
+    return isOk;
 }
 
 
@@ -899,13 +922,17 @@ CORBA::Boolean MCCAD::decomposeEnvelop(MCCAD_ORB::Component_ptr aComponent)
 
     //decompose the shape
     Handle_TopTools_HSequenceOfShape aShapeList = new TopTools_HSequenceOfShape();
-    aShapeList = decomposeShape(*aShape) ;
+    Handle_TopTools_HSequenceOfShape aErrShapeList = new TopTools_HSequenceOfShape();
+//    aShapeList = decomposeShape(*aShape) ;
+    if (!decomposeShape(*aShape, aShapeList, aErrShapeList) ) {
+        return false;
+    }
     //make as a compound and set it for the Component as new shape
     TopoDS_Compound aCompound;
     BRep_Builder aBuilder;
     //make a compound and return
     aBuilder.MakeCompound (aCompound);
-    for(int i=1; i<=aShapeList->Length(); i++){
+    for(int i=1; i<=aShapeList->Length(); i++){ //i must start from 1 !!
         aBuilder.Add (aCompound, aShapeList->Value(i));
     }
     if (!aCompound.IsNull()) {
@@ -919,14 +946,19 @@ CORBA::Boolean MCCAD::decomposeEnvelop(MCCAD_ORB::Component_ptr aComponent)
  * \brief MCCAD::decomposeShape
  *  decompose a shape
  * \param aShape a topods_shape
+ * \param OutputSolids output decomposed solids
+ * \param ErrorSolids output decomposed solids
  * \return a list of shape
  */
-Handle_TopTools_HSequenceOfShape MCCAD::decomposeShape (const TopoDS_Shape & aShape)
+CORBA::Boolean MCCAD::decomposeShape (const TopoDS_Shape & aShape,
+                                                        Handle_TopTools_HSequenceOfShape & OutputSolids,
+                                                        Handle_TopTools_HSequenceOfShape & ErrorSolids)
 {
     //put the shape into the Handle_squenceOfShape
     Handle_TopTools_HSequenceOfShape aShapeList = new TopTools_HSequenceOfShape();
     aShapeList->Append(aShape);
     //BEGIN####CALL THE MCCAD FOR DECOMPOSITION####
+/*     these are old decomposition algorithm
     McCadConvertTools_Convertor convertor(aShapeList);
     convertor.Convert();
     if(!convertor.IsConverted()){
@@ -934,7 +966,18 @@ Handle_TopTools_HSequenceOfShape MCCAD::decomposeShape (const TopoDS_Shape & aSh
         return NULL;
     }
     aShapeList = convertor.GetConvertedModel(); // get the list of decompose shape
-    return aShapeList;
+*/
+    //new decomposition algorithm by Lei Lu
+    McCadDecompose * pDecompose = new McCadDecompose();
+    pDecompose->InputData(aShapeList,"");//dummy file name because we don't export file
+    pDecompose->SetCombine(1); //1 means the the decomposed solids which belong to one original solid will be combined
+    pDecompose->Decompose();
+    OutputSolids= pDecompose->getOutCompSolids();
+    ErrorSolids = pDecompose->getErrCompSolids();
+
+    if (ErrorSolids->IsEmpty()) return true; //if no error solids
+    else return false;
+
     //END  ####
 }
 
@@ -1073,7 +1116,7 @@ void   MCCAD:: exportAllMesh2Abaqus(CORBA::Long studyID, const char* FileName)  
 }
 
 CORBA::Boolean   MCCAD:: generateTetMesh(MCCAD_ORB::Part_ptr aPart, CORBA::Double aDeflection,
-                                         CORBA::Double aCoefficient, CORBA::Double aMeshQuality)  throw (SALOME::SALOME_Exception)
+                                         CORBA::Double /*aCoefficient*/aVolThreshold, CORBA::Double aMeshQuality)  throw (SALOME::SALOME_Exception)
 {
     if (aPart->_is_nil()) {
         MESSAGE("A nil part, we skip it!");
@@ -1081,12 +1124,12 @@ CORBA::Boolean   MCCAD:: generateTetMesh(MCCAD_ORB::Part_ptr aPart, CORBA::Doubl
     }
     bool isOk = false;
 #ifdef WITH_TETGEN
-    isOk = generateTetgenMesh(aPart, aDeflection, aCoefficient, aMeshQuality);
+    isOk = generateTetgenMesh(aPart, aDeflection, /*aCoefficient*/aVolThreshold, aMeshQuality);
 #endif
     if (!isOk)
     {
         //use Netgen for mesh generation
-        isOk = generateNetgenMesh(aPart, aDeflection, aCoefficient);
+        isOk = generateNetgenMesh(aPart, aDeflection, /*aCoefficient*/aVolThreshold);
 
     }
 }
@@ -1242,7 +1285,7 @@ CORBA::Boolean   MCCAD:: generateTetMesh(MCCAD_ORB::Part_ptr aPart, CORBA::Doubl
 //! they might affect the simulation
 int op_decrease (int i) { return --i; }
 CORBA::Boolean   MCCAD:: generateTetgenMesh(MCCAD_ORB::Part_ptr aPart, CORBA::Double aDeflection,
-                                         CORBA::Double aCoefficient, CORBA::Double aMeshQuality)  throw (SALOME::SALOME_Exception)
+                                         CORBA::Double /*aCoefficient*/aVolThreshold, CORBA::Double aMeshQuality)  throw (SALOME::SALOME_Exception)
 {
 #ifdef WITH_TETGEN
 //    //check the list
@@ -1401,7 +1444,7 @@ CORBA::Boolean   MCCAD:: generateTetgenMesh(MCCAD_ORB::Part_ptr aPart, CORBA::Do
                 aMesh->getMeasureField(true)->getArray();
         vector <double > aTupe;
         aTupe.resize(1);
-        const double VolThreshold = 1.0; //volume less than 1 mm3 is remove. unit mm3 !!! only for experimental
+        const double VolThreshold = aVolThreshold; //volume less than 1 mm3 is remove. unit mm3 !!! only for experimental
         if (aTetgenOut.numberofcorners == 4) // if first-order tetrahedron
         {
             for (int j=0; j<aTetgenOut.numberoftetrahedra; j++) {
@@ -1605,24 +1648,28 @@ CORBA::Boolean   MCCAD:: generateTetgenMesh(MCCAD_ORB::Part_ptr aPart, CORBA::Do
 void MCCAD:: MeshShape(const TopoDS_Shape theShape, double & theDeflection)
 {
 
-  Standard_Real aDeflection = theDeflection <= 0 ? 0.0001 : theDeflection;
+  Standard_Real aDeflection = theDeflection <= 0 ? 0.001 : theDeflection;
 
   //If deflection <= 0, than return default deflection
   if(theDeflection <= 0)
     theDeflection = aDeflection;
 
   // Is shape triangulated?
-  Standard_Boolean alreadymeshed = Standard_True;
-  TopExp_Explorer ex;
-  TopLoc_Location aLoc;
-  for (ex.Init(theShape, TopAbs_FACE); ex.More(); ex.Next()) {
-    const TopoDS_Face& aFace = TopoDS::Face(ex.Current());
-    Handle(Poly_Triangulation) aPoly = BRep_Tool::Triangulation(aFace,aLoc);
-    if(aPoly.IsNull()) {
-  alreadymeshed = Standard_False;
-  break;
-    }
-  }
+//  Standard_Boolean alreadymeshed = Standard_True;
+//  TopExp_Explorer ex;
+//  TopLoc_Location aLoc;
+//  for (ex.Init(theShape, TopAbs_FACE); ex.More(); ex.Next()) {
+//    const TopoDS_Face& aFace = TopoDS::Face(ex.Current());
+//    Handle(Poly_Triangulation) aPoly = BRep_Tool::Triangulation(aFace,aLoc);
+//    if(aPoly.IsNull()) {
+//  alreadymeshed = Standard_False;
+//  break;
+//    }
+//  }
+
+  //the judgement of triangulation is comment out because we would like to mesh it
+  //everytime with different deflection.
+    Standard_Boolean alreadymeshed = Standard_False;  // force to mesh again
 
   if(!alreadymeshed) {
     Bnd_Box B;
@@ -1730,7 +1777,7 @@ void  MCCAD::TessellateShape(const TopoDS_Shape aShape, vector <double> &PointLi
 
 
 CORBA::Boolean   MCCAD:: generateNetgenMesh(MCCAD_ORB::Part_ptr aPart, CORBA::Double aDeflection,
-                                         CORBA::Double aCoefficient)  throw (SALOME::SALOME_Exception)
+                                         CORBA::Double /*aCoefficient*/aVolThreshold)  throw (SALOME::SALOME_Exception)
 {
     if (aPart->_is_nil()) {
         MESSAGE("A nil part, we skip it!");
@@ -2849,7 +2896,15 @@ void   Part::recoverShape()
     }
 }
 
+void   Part::setIsDecomposed(CORBA::Boolean  isDecomposed)
+{
+    myIsDecomposed = isDecomposed;
+}
 
+CORBA::Boolean  Part::getIsDecomposed()
+{
+    return myIsDecomposed ;
+}
 
 ///*!
 // * \brief set the part Name

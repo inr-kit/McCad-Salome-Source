@@ -7,6 +7,17 @@ McCadMathTool::McCadMathTool()
 {
 }
 
+
+
+/** ********************************************************************
+* @brief  Get the integer from a input float value
+*
+* @param  Standard_Real theValue  The input value
+* @return Standard_Real theValue  The modified value
+*
+* @date 04/01/2014
+* @author  Lei Lu
+***********************************************************************/
 void McCadMathTool::Integer(Standard_Real &theValue)
 {
     if(theValue >= 0.0)
@@ -19,6 +30,17 @@ void McCadMathTool::Integer(Standard_Real &theValue)
     }
 }
 
+
+
+/** ********************************************************************
+* @brief  According the tolenrence, judge the value is zero or not
+*
+* @param  Standard_Real theValue
+* @return Standard_Boolean
+*
+* @date 04/01/2014
+* @author  Lei Lu
+***********************************************************************/
 Standard_Boolean McCadMathTool::IsEqualZero(Standard_Real theValue)
 {
     if( Abs(theValue) < McCadConvertConfig::GetTolerence() )
@@ -49,6 +71,9 @@ void McCadMathTool::ZeroValue(Standard_Real &theValue, Standard_Real dTolerance)
      }
 }
 
+
+
+
 /** ********************************************************************
 * @brief  Return the maximum value from the tree values
 *
@@ -58,7 +83,8 @@ void McCadMathTool::ZeroValue(Standard_Real &theValue, Standard_Real dTolerance)
 * @date 12/05/2015
 * @author  Lei Lu
 ***********************************************************************/
-Standard_EXPORT /*qiu static*/ Standard_Real McCadMathTool::MaxValue(Standard_Real value1,
+//qiu 'static' should not be used on member functions defined at file scope
+Standard_EXPORT /*static*/ Standard_Real McCadMathTool::MaxValue(Standard_Real value1,
                                               Standard_Real value2,
                                               Standard_Real value3)
 {

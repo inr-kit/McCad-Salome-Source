@@ -972,16 +972,26 @@ MCCADGUI_ImportObjDialog::MCCADGUI_ImportObjDialog(QWidget*parent, MCCADGUI_Data
     connect(dm->getMCCADGUImodule(),SIGNAL(selectChg()),this,SLOT(onSelectChg()) );
 }
 
-void     MCCADGUI_ImportObjDialog::SetSourceObjName(const QString & aName)
+void     MCCADGUI_ImportObjDialog::SetSourceObjName(const QStringList & aNameList)
 {
-    if (aName.trimmed().isEmpty()) return;
-    lb_geom_name->setText(aName);
+    if (aNameList.isEmpty()) return;
+    QString aNameStr;
+    for (int i=0; i<aNameList.size(); i++) {
+        aNameStr += aNameList.at(i) + QString("\n");
+    }
+    te_geom_name->setText(aNameStr);
 }
 
-void     MCCADGUI_ImportObjDialog::SetMCCADObjName(const QString & aName)
+void     MCCADGUI_ImportObjDialog::SetMCCADObjName(const QStringList &aNameList)
 {
-    if (aName.trimmed().isEmpty()) return;
-    lb_mccad_name->setText(aName);
+
+    if (aNameList.isEmpty()) return;
+    QString aNameStr;
+    for (int i=0; i<aNameList.size(); i++) {
+        aNameStr += aNameList.at(i) + QString("\n");
+    }
+    te_mccad_name->setText(aNameStr);
+
 }
 
 /*!
@@ -991,30 +1001,36 @@ void     MCCADGUI_ImportObjDialog::onSelectChg()
 {
     MCCADGUI * theGUI = dm->getMCCADGUImodule();
     QStringList aSelectedList;
-    theGUI->selected(aSelectedList, /*multiple objects*/ false);
+//    theGUI->selected(aSelectedList, /*multiple objects*/ false);
+    theGUI->selected(aSelectedList, /*multiple objects*/ true);
 //    if (aSelectedList.isEmpty()) {
 //        isOK = false;
 //        return;
 //    }
 
+    QStringList aNameList;
+    for (int i=0; i<aSelectedList.size(); i++) {
+        MCCADGUI_DataObject * aObj = dm->findObject(aSelectedList[i]);
+        QString aTmpName;
+        if (aObj->isPart())
+            aTmpName = QString("Part  ") + QString(aObj->name());
+        else if (aObj->isGroup())
+            aTmpName = QString("Group  ") + QString(aObj->name());
+        else if (aObj->isComponent())
+            aTmpName = QString("Component  ") + QString(aObj->name());
+        else
+            aTmpName = QString("MCCAD");
 
-    MCCADGUI_DataObject * aObj = dm->findObject(aSelectedList[0]);
+        aNameList.push_back(aTmpName);
+    }
+
 //    if (!aObj) {
 //        isOK = false;
 //        return;
 //    }
-    QString aTmpName;
-    if (aObj->isPart())
-        aTmpName = QString("Part  ") + QString(aObj->name());
-    else if (aObj->isGroup())
-        aTmpName = QString("Group  ") + QString(aObj->name());
-    else if (aObj->isComponent())
-        aTmpName = QString("Component  ") + QString(aObj->name());
-    else
-        aTmpName = QString("MCCAD");
 
     //set the name for mccad object label
-    SetMCCADObjName(aTmpName);
+    SetMCCADObjName(aNameList);
 //    isOK = true;
 }
 

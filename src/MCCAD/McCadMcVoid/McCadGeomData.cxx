@@ -1,7 +1,7 @@
 #include "McCadGeomData.hxx"
 
-#include <McCadDiscDs_DiscSolid.hxx>
-#include <McCadDiscDs_HSequenceOfDiscSolid.hxx>
+//qiu no use #include <McCadDiscDs_DiscSolid.hxx>
+//qiu no use #include <McCadDiscDs_HSequenceOfDiscSolid.hxx>
 
 #include "McCadVoidCellManager.hxx"
 #include "McCadConvexSolid.hxx"
@@ -29,6 +29,7 @@
 
 #include "../McCadTool/McCadMathTool.hxx"
 #include "../McCadTool/McCadConvertConfig.hxx"
+#include "../McCadTool/McCadGeomTool.hxx"
 
 #include "GProp_GProps.hxx"
 #include "BRepGProp.hxx"
@@ -138,34 +139,33 @@ void McCadGeomData::InputData( Handle_TopTools_HSequenceOfShape & solid_list, St
         /// If the solid is compound solid, explode each its lumps into solids firstly
         if( theShape.ShapeType() == TopAbs_COMPSOLID || theShape.ShapeType() == TopAbs_COMPOUND )
         {
-            cout<<"yes. it is compoundsolid;"<<endl;
+            cout<<"It is a compound solid."<<endl;
             int j = 0;
             McCadSolid * pSolidList = new McCadSolid();
             for(exp.Init(theShape,TopAbs_SOLID); exp.More(); exp.Next())
             {
                 j++;
                 TopoDS_Solid tmpSolid = TopoDS::Solid(exp.Current());
-                McCadConvexSolid *pConvexSolid = NULL;
+                McCadConvexSolid *pConvexSolid = NULL;             
 
-                GProp_GProps GP;
-                BRepGProp::VolumeProperties(tmpSolid, GP);
+                Standard_Real solid_mass = McCadGeomTool::GetVolume(tmpSolid);
 
-                if(GP.Mass() >= 0.01)        // Set the minimum volume tolerance
+                if(solid_mass >= 0.01)        // Set the minimum volume tolerance
                 {
                     pConvexSolid = new McCadConvexSolid(tmpSolid);
-                    pConvexSolid->SetVolume(GP.Mass());
+                    pConvexSolid->SetVolume(solid_mass);
                 }
                 else
                 {
-                    cout<<"Detected a solid with small volume: "<<pConvexSolid->GetVolume()<<endl;
+                    cout<<"Detected a solid with small volume which is less than 0.01mm3: "<<pConvexSolid->GetVolume()<<endl;
                     continue;
                 }
 
                 AddGeomSurfList(pConvexSolid->GetSTLFaceList());    // Travelse the boundary faces, add in face list
-                AddGeomAuxSurfList(pConvexSolid->GetSTLFaceList()); // Judge whether need add auxiliary faces
+                AddGeomAstSurfList(pConvexSolid->GetSTLFaceList()); // Judge whether need add auxiliary faces
                 pSolidList->AddConvexSolid(pConvexSolid);           // Add the convex solid into a complicate solid
 
-                pConvexSolid->DeleteRepeatFaces(bGenVoid);           // Delete the repeated faces of solid
+                //pConvexSolid->DeleteRepeatFaces(bGenVoid);          // Delete the repeated faces of solid
 
                 m_ConvexSolidList.push_back(pConvexSolid);          // Add the convex solid in the solid list
                 m_iNumSolid++;
@@ -176,28 +176,27 @@ void McCadGeomData::InputData( Handle_TopTools_HSequenceOfShape & solid_list, St
         else if( theShape.ShapeType() == TopAbs_SOLID)
         {
             TopoDS_Solid tmpSolid = TopoDS::Solid(solid_list->Value(i));
-            McCadConvexSolid *pConvexSolid = NULL;
+
             McCadSolid * pSolidList = new McCadSolid();
+            McCadConvexSolid *pConvexSolid = NULL;
 
-            GProp_GProps GP;
-            BRepGProp::VolumeProperties(tmpSolid, GP);
-
-            if(GP.Mass() >= 0.01)        // Set the minimum volume tolerance
-            {
+            Standard_Real solid_mass = McCadGeomTool::GetVolume(tmpSolid);
+            //cout<<"Mass  "<<solid_mass<<endl;
+            if(solid_mass >= 0.01)        // Set the minimum volume tolerance
+            {                
                 pConvexSolid = new McCadConvexSolid(tmpSolid);
-                pConvexSolid->SetVolume(GP.Mass());
+                pConvexSolid->SetVolume(solid_mass);
             }
             else
             {
                 cout<<"Detected a solid with small volume: "<<pConvexSolid->GetVolume()<<endl;
                 continue;
-            }          
+            }
 
-            AddGeomSurfList(pConvexSolid->GetSTLFaceList());    // Travelse the boundary faces, add in face list
-            AddGeomAuxSurfList(pConvexSolid->GetSTLFaceList()); // Judge whether need add auxiliary faces
+            AddGeomSurfList(pConvexSolid->GetSTLFaceList());    // Travelse the boundary faces, add in face list      
+            AddGeomAstSurfList(pConvexSolid->GetSTLFaceList()); // Judge whether need add auxiliary faces
             pSolidList->AddConvexSolid(pConvexSolid);           // Add the convex solid into a complicate solid
-
-            pConvexSolid->DeleteRepeatFaces(bGenVoid);                  // Delete the repeated faces of solid
+            //pConvexSolid->DeleteRepeatFaces(bGenVoid);                  // Delete the repeated faces of solid
             m_ConvexSolidList.push_back(pConvexSolid);          // Add the convex solid in the solid list
             m_iNumSolid++;
             m_SolidList.push_back(pSolidList);            
@@ -211,139 +210,34 @@ void McCadGeomData::InputData( Handle_TopTools_HSequenceOfShape & solid_list, St
 
 
 /** ********************************************************************
-* @brief Traverse the boundary faces of solid and add into geometery surface list.
+* @brief Traverse the boundary faces of solid and add into geometery
+*        surface list.
 *
 * @param const vector<McCadExtFace*> & theExtFaceList
 * @return void
 *
 * @date 31/8/2012
+* @modify 29/07/2016
 * @author  Lei Lu
 *********************************************************************/
-void McCadGeomData::AddGeomSurfList(const vector<McCadExtFace*> & theExtFaceList)
+void McCadGeomData::AddGeomSurfList(const vector<McCadExtBndFace*> & theExtFaceList)
 {
     /* travelse the extend faces list */
     for (unsigned int i = 0; i < theExtFaceList.size(); i++)
     {
         McCadExtFace *pExtFace = theExtFaceList[i];
-
-        TopLoc_Location loc;
-        Handle(Geom_Surface) geom_surface = BRep_Tool::Surface(*pExtFace, loc);
-        GeomAdaptor_Surface surf_adoptor(geom_surface);
-
-        /* Generate the geometry surface interface based on the type of sufaces */
-        IGeomFace * pGeomFace = NULL;
-        switch (surf_adoptor.GetType())
+        IGeomFace* pGeomFace = GenGeomSurface(pExtFace);
+        if(pGeomFace)
         {
-            case GeomAbs_Plane:
-            {
-                pGeomFace = new McCadGeomPlane(surf_adoptor);
-                break;
-            }
-            case GeomAbs_Cylinder:
-            {
-                pGeomFace = new McCadGeomCylinder(surf_adoptor);
-                break;
-            }
-            case GeomAbs_Cone:
-            {
-                pGeomFace = new McCadGeomCone(surf_adoptor);
-                if(((McCadGeomCone *)pGeomFace)->HaveTransfCard() )
-                {
-                    ((McCadGeomCone *)pGeomFace)->AddTransfCard(this);// lei lu 131209
-                }
-                break;
-            }
-            case GeomAbs_Sphere:
-            {
-                pGeomFace = new McCadGeomSphere(surf_adoptor);
-                break;
-            }
-            case GeomAbs_Torus:
-            {
-                pGeomFace = new McCadGeomTorus(surf_adoptor);
-                break;
-            }
-            case GeomAbs_SurfaceOfRevolution:
-            {
-                pGeomFace = new McCadGeomRevolution(surf_adoptor);
-                break;
-            }
-            case GeomAbs_BezierSurface:
-            {
-                cout << "Surface is not analytic (BezierSurface) " << endl;
-                break;
-            }
-            case GeomAbs_BSplineSurface:
-            {
-                cout << "Surface is not analytic (BSplineSurface) " << endl;
-                break;
-            }
-            case GeomAbs_SurfaceOfExtrusion:
-            {
-                cout << "Surface is not analytic (SurfaceOfRevolution) " << endl;
-                break;
-            }
-            case GeomAbs_OffsetSurface:
-            {
-                cout << "Surface is not analytic (OffsetSurface) " << endl;
-                break;
-            }
-            case GeomAbs_OtherSurface:
-            {
-                cout << "Surface is not analytic " << endl;
-                break;
-            }
-            default:break;
+            AddInGeomFaceList(pGeomFace,pExtFace);
         }
-
-        if (!pGeomFace) // If geometry face didn't generated, the face should be spline surface.
+        else
         {
-            return;
-        }
-
-        Standard_Boolean bExist = Standard_False; // Assume that the geometry surface didn't existed in the face list
-
-        /* Travelse the geometry face list, add the new surface generated into the list.
-           if the face with same geometry is existed already,no need to add more */
-        vector<IGeomFace *>::iterator iterPos;
-        for (iterPos = m_GeomSurfList.begin(); iterPos != m_GeomSurfList.end(); ++iterPos)
-        {
-            IGeomFace * pIterFace = *iterPos;
-            if(pGeomFace->IsEqual( pIterFace ))
-            {
-                bExist = Standard_True;         // The geometry suface has already existed in list.
-                if (pGeomFace->IsReversed())    // If the face orientation is different, reverse the new added surface.
-                {
-                    pExtFace->Reverse();
-                }
-
-                pExtFace->SetFaceNum(pIterFace->GetSurfNum()); // Set the surface number to be same.
-                delete pGeomFace;               // Delete the point of geometry face and keep the extend surface.
-                pGeomFace = NULL;
-                break;
-            }
-        }
-
-        /* If there are no repeated surface, add the surface into the list.*/
-        if (Standard_False == bExist)
-        {
-            // use the serial number in geometry surface list as Face-Surface relationship number.
-            int iNum = m_GeomSurfList.size();
-
-            // Set the code number of McCadExtFace and GeomSurface, it will help to match them.
-            // If the geometry surface orientation is reversed, make it to be forword.
-            if (pGeomFace->IsReversed())
-            {
-                //cout<<"fanzhuan"<<pGeomFace->GetExpression()<<endl;
-                pExtFace->Reverse();
-            }
-            pExtFace->SetFaceNum(iNum + 1);         //  Set the face number
-            pGeomFace->SetSurfNum(iNum + 1);        //  Set the surface number, it is same to face number
-
-            m_GeomSurfList.push_back(pGeomFace);    // Add the geometry surface into geometry face list.
+            break;
         }
     }
 }
+
 
 
 
@@ -358,24 +252,193 @@ void McCadGeomData::AddGeomSurfList(const vector<McCadExtFace*> & theExtFaceList
 * @date 31/8/2012
 * @author  Lei Lu
 *********************************************************************/
-void McCadGeomData::AddGeomAuxSurfList(const vector<McCadExtFace*> & theExtFaceList)
+void McCadGeomData::AddGeomAstSurfList(const vector<McCadExtBndFace *> &theExtFaceList)
 {
     for (unsigned int i = 0; i < theExtFaceList.size(); i++)
     {
-        McCadExtFace * pExtFace = theExtFaceList[i];
+        McCadExtBndFace * pExtFace = theExtFaceList[i];
         assert(pExtFace);
-        vector<McCadExtFace*> AuxFaceList = pExtFace->GetAuxFaces(); // Calculate the face's auxiliary faces
+        /// Calculate the face's assisted faces       
+        vector<McCadExtAstFace*> AstFaceList = pExtFace->GetAstFaces();
 
-        if(AuxFaceList.size() == 0) // if there are no auxiliary surface
+        if(AstFaceList.size() == 0) // if there are no auxiliary surface
         {
             continue;
         }
         else                        // Add the auxiliary faces into geometry face list
         {
-            AddGeomSurfList(AuxFaceList);
+            /* travelse the assisted faces list */
+            for (unsigned int i = 0; i < AstFaceList.size(); i++)
+            {
+                McCadExtFace *pExtFace = AstFaceList.at(i);
+                IGeomFace* pGeomFace = GenGeomSurface(pExtFace);
+                if(pGeomFace)
+                {
+                    AddInGeomFaceList(pGeomFace,pExtFace);
+                }
+                else
+                {
+                    break;
+                }
+            }
         }
     }
 }
+
+
+/** ********************************************************************
+* @brief Add the generated geometry face into the geometry face list,
+*        remove the repeated faces and if the surfaces have different
+*        directions, reverse one of them and then add into the list
+*
+* @param IGeomFace*& pGeomFace, McCadExtFace *& pExtFace
+* @return void
+*
+* @date 31/8/2012
+* @modify 29/07/2016
+* @author  Lei Lu
+*********************************************************************/
+void McCadGeomData::AddInGeomFaceList(IGeomFace*& pGeomFace, McCadExtFace *& pExtFace)
+{
+    Standard_Boolean bExist = Standard_False; // Assume that the geometry surface didn't existed in the face list
+
+    /**< Travelse the geometry face list, add the new surface generated into the list.
+         if the face with same geometry is existed already,no need to add more */
+    vector<IGeomFace *>::iterator iterPos;
+    for (iterPos = m_GeomSurfList.begin(); iterPos != m_GeomSurfList.end(); ++iterPos)
+    {
+        IGeomFace * pIterFace = *iterPos;
+        if(pGeomFace->IsEqual( pIterFace ))
+        {
+            bExist = Standard_True;         /// The geometry suface has already existed in list.
+            if (pGeomFace->IsReversed())    /// If the face orientation is different, reverse the new added surface.
+            {
+                pExtFace->Reverse();
+            }
+
+            pExtFace->SetFaceNum(pIterFace->GetSurfNum()); // Set the surface number to be same.
+            delete pGeomFace;               /// Delete the point of geometry face and keep the extend surface.
+            pGeomFace = NULL;
+            break;
+        }
+    }
+
+
+    /* If there are no repeated surface, add the surface into the list.*/
+    if (Standard_False == bExist)
+    {
+        /// use the serial number in geometry surface list as Face-Surface relationship number.
+        int iNum = m_GeomSurfList.size();
+
+        /// Set the code number of McCadExtFace and GeomSurface, it will help to match them.
+        /// If the geometry surface orientation is reversed, make it to be forword.
+        if (pGeomFace->IsReversed())
+        {
+            // cout<<"fanzhuan"<<pGeomFace->GetExpression()<<endl;
+            pExtFace->Reverse();
+        }
+        pExtFace->SetFaceNum(iNum + 1);         //  Set the face number
+        pGeomFace->SetSurfNum(iNum + 1);        //  Set the surface number, it is same to face number
+
+        m_GeomSurfList.push_back(pGeomFace);    // Add the geometry surface into geometry face list.
+    }
+}
+
+
+
+
+/** ********************************************************************
+* @brief Given a topology surface, and analyze the geometry information
+*        then generate the a geometry surface and add it into geometry
+*        surface list
+*
+* @param McCadExtFace *& pExtFace
+* @return IGeomFace*
+*
+* @date 31/8/2012
+* @modify 29/07/2016
+* @author  Lei Lu
+*********************************************************************/
+IGeomFace*  McCadGeomData::GenGeomSurface(McCadExtFace *& pExtFace)
+{
+    TopLoc_Location loc;
+    Handle(Geom_Surface) geom_surface = BRep_Tool::Surface(*pExtFace, loc);
+    GeomAdaptor_Surface surf_adoptor(geom_surface);
+
+    /* Generate the geometry surface interface based on the type of sufaces */
+    IGeomFace * pGeomFace = NULL;
+    switch (surf_adoptor.GetType())
+    {
+        case GeomAbs_Plane:
+        {
+            pGeomFace = new McCadGeomPlane(surf_adoptor);
+            break;
+        }
+        case GeomAbs_Cylinder:
+        {
+            pGeomFace = new McCadGeomCylinder(surf_adoptor);
+            break;
+        }
+        case GeomAbs_Cone:
+        {
+            pGeomFace = new McCadGeomCone(surf_adoptor);
+            if(((McCadGeomCone *)pGeomFace)->HaveTransfCard() )
+            {
+                ((McCadGeomCone *)pGeomFace)->AddTransfCard(this);// lei lu 131209
+            }
+            break;
+        }
+        case GeomAbs_Sphere:
+        {
+            pGeomFace = new McCadGeomSphere(surf_adoptor);
+            break;
+        }
+        case GeomAbs_Torus:
+        {
+            pGeomFace = new McCadGeomTorus(surf_adoptor);
+            break;
+        }
+        case GeomAbs_SurfaceOfRevolution:
+        {
+            pGeomFace = new McCadGeomRevolution(surf_adoptor);
+            break;
+        }
+        case GeomAbs_BezierSurface:
+        {
+            cout << "Surface is not analytic (BezierSurface) " << endl;
+            break;
+        }
+        case GeomAbs_BSplineSurface:
+        {
+            cout << "Surface is not analytic (BSplineSurface) " << endl;
+            break;
+        }
+        case GeomAbs_SurfaceOfExtrusion:
+        {
+            cout << "Surface is not analytic (SurfaceOfRevolution) " << endl;
+            break;
+        }
+        case GeomAbs_OffsetSurface:
+        {
+            cout << "Surface is not analytic (OffsetSurface) " << endl;
+            break;
+        }
+        case GeomAbs_OtherSurface:
+        {
+            cout << "Surface is not analytic " << endl;
+            break;
+        }
+        default:break;
+    }
+
+    if (!pGeomFace) // If geometry face didn't generated, the face should be spline surface.
+    {
+        return NULL;
+    }
+
+    return pGeomFace;
+}
+
 
 
 
@@ -390,12 +453,9 @@ void McCadGeomData::AddGeomAuxSurfList(const vector<McCadExtFace*> & theExtFaceL
 *********************************************************************/
 void McCadGeomData::SetManager(const McCadVoidCellManager * pManager)
 {
-//qiu     m_pManager = pManager;
-	m_pManager = const_cast <McCadVoidCellManager *> (pManager);
+    //qiu     m_pManager = pManager;
+    m_pManager = const_cast <McCadVoidCellManager *> (pManager);
 }
-
-
-
 
 /** ********************************************************************
 * @brief Calculate the weight of each surface according to the surface
@@ -409,8 +469,8 @@ void McCadGeomData::SetManager(const McCadVoidCellManager * pManager)
 ***********************************************************************/
 Standard_Boolean compare(const IGeomFace * surfA, const IGeomFace * surfB)
 {
-//qiu     return surfA->Compare(surfB);
-	    return const_cast <IGeomFace * >(surfA)->Compare(surfB);
+    //qiu     return surfA->Compare(surfB);
+    return const_cast <IGeomFace * >(surfA)->Compare(surfB);
 }
 
 /** ********************************************************************
@@ -429,6 +489,8 @@ void McCadGeomData::SortSurface()
     cout<<endl;
     cout<< "There are " <<m_GeomSurfList.size()<<" faces in face list"<<endl;
 }
+
+
 
 
 /** ********************************************************************
@@ -454,58 +516,76 @@ void McCadGeomData::UpdateFaceNum()
         GenMapSurfNum(iSurfNumOld,iSurfNumNew);
     }
 
-    try
+    /** Update the face number of solids, voids and outer spaces. */
+    for (unsigned int i = 0; i < m_SolidList.size(); i++)
     {
-        /** Update the face number of solids, voids and outer spaces. */
-        for (unsigned int i = 0; i < m_SolidList.size(); i++)
+        McCadSolid * pSolid = m_SolidList.at(i);
+        for(int j = 0; j < pSolid->GetConvexSolidList().size(); j++)
         {
-            McCadSolid * pSolid = m_SolidList.at(i);
-            assert(pSolid);
-
-            for(int j = 0; j < pSolid->GetConvexSolidList().size(); j++)
-            {
-                McCadConvexSolid *pConvexSolid = pSolid->GetConvexSolidList().at(j);
-                assert(pConvexSolid);
-                pConvexSolid->ChangeFaceNum(this);
-            }
+            McCadConvexSolid *pConvexSolid = pSolid->GetConvexSolidList().at(j);
+            assert(pConvexSolid);
+            pConvexSolid->ChangeFaceNum(this);
         }
+    }
 
+    if (m_pManager->GenVoid())
+    {
         for (unsigned int i = 0; i < m_VoidCellList.size(); i++)
         {
             McCadVoidCell * pVoid = m_VoidCellList.at(i);
-            assert(pVoid);
-
             pVoid->ChangeFaceNum(this);    // Update the surface number after sorting the surface list.
         }
-
-        if (m_pManager->GenVoid())
-        {
-            assert(m_pOutVoid);
-            m_pOutVoid->ChangeFaceNum(this); // Update the face number.
-        }
-    }
-    catch(...)
-    {
-        cout << "#McCadGeomData :: Update surfaces number FAILED\n";
+        m_pOutVoid->ChangeFaceNum(this); // Update the face number.
     }
 }
 
 
+
+/** ********************************************************************
+* @brief Get the convex solid list
+*
+* @param
+* @return vector <McCadConvexSolid *>
+*
+* @date 31/8/2012
+* @author  Lei Lu
+***********************************************************************/
 vector <McCadConvexSolid *> McCadGeomData::GetConvexSolid()
 {
     return m_ConvexSolidList;
 }
 
 
+
+/** ********************************************************************
+* @brief Get the transformation cards
+*
+* @param
+* @return vector <McCadTransfCard *>
+*
+* @date 31/8/2012
+* @author  Lei Lu
+***********************************************************************/
 vector <McCadTransfCard *> McCadGeomData::GetTransfCard()
 {
     return m_TransfCardList;
 }
 
 
-int McCadGeomData::AddTransfCard(gp_Ax3 theAxis, gp_Pnt theApex)
+
+
+/** ********************************************************************
+* @brief Add transformation cards
+*
+* @param gp_Ax3 theAxis, gp_Pnt theApex
+* @return Standard_Integer
+*
+* @date 31/8/2012
+* @author  Lei Lu
+***********************************************************************/
+Standard_Integer McCadGeomData::AddTransfCard(gp_Ax3 theAxis, gp_Pnt theApex)
 {
-    int iTrNum;
+    Standard_Integer iTrNum; /// The number of transformation card
     McCadTransfCard *pTrCard = new McCadTransfCard(theAxis,theApex);
     iTrNum = m_TransfCardList.size() + 1;
     pTrCard->SetTrNum(iTrNum);
@@ -515,6 +595,19 @@ int McCadGeomData::AddTransfCard(gp_Ax3 theAxis, gp_Pnt theApex)
 }
 
 
+
+
+/** ********************************************************************
+* @brief Generate the map for store the old surface number and new
+*        surface number
+*
+* @param Standard_Integer iSurfNumOld
+*        Standard_Integer iSurfNumNew
+* @return Standard_Boolean
+*
+* @date 31/8/2012
+* @author  Lei Lu
+***********************************************************************/
 Standard_Boolean McCadGeomData::GenMapSurfNum(Standard_Integer iSurfNumOld,Standard_Integer iSurfNumNew)
 {
     pair<Standard_Integer,Standard_Integer>(iSurfNumOld,iSurfNumNew);
@@ -532,12 +625,37 @@ Standard_Boolean McCadGeomData::GenMapSurfNum(Standard_Integer iSurfNumOld,Stand
 }
 
 
+
+
+/** ********************************************************************
+* @brief Input the old surface number, given the new number
+*
+* @param Standard_Integer iOldNum
+* @return Standard_Integer
+*
+* @date 31/8/2012
+* @author  Lei Lu
+***********************************************************************/
 Standard_Integer McCadGeomData::GetNewFaceNum(Standard_Integer iOldNum)
 {
+    /// get the the surface number of map, which records the old surface number
+    /// and new surface number after sorting.
     map<Standard_Integer,Standard_Integer>::iterator iter;
     iter = m_mapSurfNum.find(iOldNum);
+    Standard_Integer iNewFaceNum;
+
     if (iter != m_mapSurfNum.end())
     {
-        return iter->second;
+        iNewFaceNum = iter->second;
     }
+
+    /// on the basis of the initial cell number, refresh the number.
+    Standard_Integer iInitSurfNum = McCadConvertConfig::GetInitSurfNum()-1;
+    iNewFaceNum += iInitSurfNum;
+
+    return iNewFaceNum;
 }
+
+
+
+

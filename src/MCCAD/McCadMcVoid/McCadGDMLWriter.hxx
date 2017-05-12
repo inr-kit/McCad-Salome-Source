@@ -59,10 +59,10 @@ Standard_EXPORT    virtual void    PrintSolids (QDomElement & ParentElement);
 Standard_EXPORT    virtual void    PrintWorldBox (QDomElement & ParentElement);
     //print a HalfSpaceSolid
 Standard_EXPORT    virtual void    PrintHalfSpaceSolid(QDomElement & ParentElement,  McCadConvexSolid * pConvexSolid, const QString & aName);
-Standard_EXPORT    virtual void    PrintHalfSpaceSolid(QDomElement & ParentElement,  McCadVoidCell * pVoid, const QString & aName);
+//Standard_EXPORT    virtual void    PrintHalfSpaceSolid(QDomElement & ParentElement,  McCadVoidCell * pVoid, const QString & aName);
     //print the surface list
 Standard_EXPORT    virtual void    PrintSurfaces(QDomElement & ParentElement,  McCadConvexSolid * pConvexSolid);
-Standard_EXPORT    virtual void    PrintSurfaces(QDomElement & ParentElement,  McCadVoidCell * pVoid);
+//Standard_EXPORT    virtual void    PrintSurfaces(QDomElement & ParentElement,  McCadVoidCell * pVoid);
     //find the surface according to the surface ID
 Standard_EXPORT    IGeomFace *     findSurface(const int & aIdx);
     //print a surface
@@ -100,6 +100,8 @@ Standard_EXPORT    virtual void    CheckMaterialNames();
 protected:
 Standard_EXPORT    virtual void    CheckNames(vector<QString> aNameList);
 Standard_EXPORT    QString         RoundDouble(const double & aDouble);
+// for checking repeated surface in one solid
+Standard_EXPORT    void            checkRepeatFaces(McCadConvexSolid *& pSolid, vector<Standard_Integer> & IntSurfList, vector<Standard_Integer> UniSurfList);
 
 protected:
     QDomDocument m_Doc;

@@ -51,7 +51,6 @@ McCadGeomTorus::~McCadGeomTorus()
 }
 
 
-
 /** ********************************************************************
 * @brief Get the mcnp expression of torus
 *
@@ -76,7 +75,7 @@ TCollection_AsciiString McCadGeomTorus::GetExpression()
     gp_Ax3 Ax3_Y(m_Center, gp::DY());
     gp_Ax3 Ax3_Z(m_Center, gp::DZ());
 
-    if (m_Axis.IsCoplanar(Ax3_X, angle_tol, angle_tol))
+    if (m_Axis.IsCoplanar(Ax3_X, dis_tol, angle_tol))
     {
         sprintf(chExpn, "TX%8s%15.7f%5s%15.7f%5s%15.7f\n%10s%15.7f%5s%15.7f%5s%15.7f\n",
                         "", m_Center.X(),
@@ -94,7 +93,7 @@ TCollection_AsciiString McCadGeomTorus::GetExpression()
         m_PrmtList.push_back(m_MinorRadius);
         m_PrmtList.push_back(m_MinorRadius);
     }
-    else if (m_Axis.IsCoplanar(Ax3_Y, angle_tol, angle_tol))
+    else if (m_Axis.IsCoplanar(Ax3_Y, dis_tol, angle_tol))
     {
         sprintf(chExpn, "TY%8s%15.7f%5s%15.7f%5s%15.7f\n%10s%15.7f%5s%15.7f%5s%15.7f\n",
                         "", m_Center.X(),
@@ -112,7 +111,7 @@ TCollection_AsciiString McCadGeomTorus::GetExpression()
         m_PrmtList.push_back(m_MinorRadius);
         m_PrmtList.push_back(m_MinorRadius);
     }
-    else if (m_Axis.IsCoplanar(Ax3_Z, angle_tol, angle_tol))
+    else if (m_Axis.IsCoplanar(Ax3_Z, dis_tol, angle_tol))
     {
         sprintf(chExpn, "TZ%8s%15.7f%5s%15.7f%5s%15.7f\n%10s%15.7f%5s%15.7f%5s%15.7f\n",
                         "", m_Center.X(),
@@ -199,6 +198,8 @@ gp_Pnt McCadGeomTorus::GetCenter() const
     return m_Center;
 }
 
+
+
 /** ********************************************************************
 * @brief Get major radius of torus
 *
@@ -213,6 +214,8 @@ Standard_Real McCadGeomTorus::GetMajorRadius() const
     return m_MajorRadius;
 }
 
+
+
 /** ********************************************************************
 * @brief Get minor radius of torus
 *
@@ -226,6 +229,8 @@ Standard_Real McCadGeomTorus::GetMinorRadius() const
 {
     return m_MinorRadius;
 }
+
+
 
 /** ********************************************************************
 * @brief Get axis direction of torus
@@ -244,7 +249,7 @@ gp_Dir McCadGeomTorus::GetAxisDir() const
 
 
 /** ********************************************************************
-* @brief
+* @brief Clean the generated objects
 *
 * @param
 * @return
@@ -254,14 +259,15 @@ gp_Dir McCadGeomTorus::GetAxisDir() const
 ************************************************************************/
 void McCadGeomTorus::CleanObj() const
 {
-
 }
 
+
+
 /** ********************************************************************
-* @brief
+* @brief Compared with other faces, get the priorites for surface sorting.
 *
-* @param
-* @return
+* @param const IGeomFace *& theGeoFace
+* @return Standard_Boolean
 *
 * @date 31/8/2012
 * @author  Lei Lu
@@ -276,7 +282,8 @@ Standard_Boolean McCadGeomTorus::Compare(const IGeomFace *& theGeoFace)
     else if ( McCadConvertConfig::GetSurfSequNum(m_SurfSymb)
                  == McCadConvertConfig::GetSurfSequNum(theGeoFace->GetSurfSymb()))
     {
-        if ( m_PrmtList[0] < theGeoFace->GetPrmtList()[0])
+//qiu        if ( m_PrmtList[0] < theGeoFace->GetPrmtList()[0])
+        if ( m_PrmtList[0] < const_cast<IGeomFace *&>(theGeoFace)->GetPrmtList()[0])
         {
             return Standard_True;
         }
@@ -292,7 +299,15 @@ Standard_Boolean McCadGeomTorus::Compare(const IGeomFace *& theGeoFace)
 }
 
 
-
+/** ********************************************************************
+* @brief Get the transform card
+*
+* @param
+* @return TCollection_AsciiString
+*
+* @date 31/8/2012
+* @author  Lei Lu
+************************************************************************/
 TCollection_AsciiString McCadGeomTorus::GetTransfNum()const
 {
     return "";

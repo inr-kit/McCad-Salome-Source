@@ -2,14 +2,23 @@
 
 McCadTripoliCell::McCadTripoliCell()
 {
+    m_IsVirtual = false;
+}
 
-
-
-
-
+McCadTripoliCell::~McCadTripoliCell()
+{
 }
 
 
+/** ********************************************************************
+* @brief From the input surfaces and their directions, write the equation*
+*
+* @param
+* @return TCollection_AsciiString
+*
+* @date 31/04/2013
+* @author  Lei Lu
+************************************************************************/
 TCollection_AsciiString McCadTripoliCell::GetEqua()
 {
     if (!m_Equation.IsEmpty())
@@ -42,7 +51,7 @@ TCollection_AsciiString McCadTripoliCell::GetEqua()
             strDesc += TCollection_AsciiString(iNumMinusFace);
             strDesc += " ";
         }
-        strDesc += TCollection_AsciiString(abs(minus_list.at(i)));
+        strDesc += TCollection_AsciiString(minus_list.at(i));
         strDesc += " ";
     }
 
@@ -53,22 +62,32 @@ TCollection_AsciiString McCadTripoliCell::GetEqua()
 
 
 
-void McCadTripoliCell::SetVirtual(bool isVirtual)
-{
-
-}
-
+/** ********************************************************************
+* @brief Set this Boolean operation of the cell
+*
+* @param bool isVirtual
+* @return void
+*
+* @date 31/04/2013
+* @author  Lei Lu
+************************************************************************/
 void McCadTripoliCell::SetBoolOp(int theBoolOp)
 {
     m_boolOp = theBoolOp;
 }
 
 
-void McCadTripoliCell::SetCellNum(int theCellNum)
-{
-    m_CellNum = theCellNum;
-}
 
+/** ********************************************************************
+* @brief Add surface into the face list, according to the directions,
+*        add them into plus_list or minus_list
+*
+* @param int theSurfNum
+* @return void
+*
+* @date 31/04/2013
+* @author  Lei Lu
+************************************************************************/
 void McCadTripoliCell::AddSurface(int theSurfNum)
 {
     if(theSurfNum > 0)
@@ -77,15 +96,37 @@ void McCadTripoliCell::AddSurface(int theSurfNum)
     }
     else if(theSurfNum < 0)
     {
-        minus_list.push_back(theSurfNum);
+        minus_list.push_back(abs(theSurfNum));  // Remove the minus symbol
     }
 }
 
-void McCadTripoliCell::AddCldCell(McCadTripoliCell* pCell)
+
+
+/** ********************************************************************
+* @brief Add another cells as one virtual child cell of current cell
+*
+* @param int theSurfNum
+* @return void
+*
+* @date 31/04/2013
+* @author  Lei Lu
+************************************************************************/
+void McCadTripoliCell::AddChildCell(McCadTripoliCell* pCell)
 {
     m_childCellList.push_back(pCell);
 }
 
+
+
+/** ********************************************************************
+* @brief If the cell has virtual cell or not
+*
+* @param
+* @return bool
+*
+* @date 31/04/2013
+* @author  Lei Lu
+************************************************************************/
 bool McCadTripoliCell::hasVirtualCell()
 {
     if(!m_childCellList.empty())
@@ -98,7 +139,18 @@ bool McCadTripoliCell::hasVirtualCell()
     }
 }
 
-McCadTripoliCell * McCadTripoliCell::GetVirtualCell(int index)
+
+
+/** ********************************************************************
+* @brief Get virtual cell from virtual cell list with given index
+*
+* @param int index
+* @return McCadTripoliCell *
+*
+* @date 31/04/2013
+* @author  Lei Lu
+************************************************************************/
+McCadTripoliCell* McCadTripoliCell::GetVirtualCell(int index)
 {
     if(m_childCellList.empty())
     {
@@ -110,16 +162,20 @@ McCadTripoliCell * McCadTripoliCell::GetVirtualCell(int index)
     }
 }
 
+
+
+/** ********************************************************************
+* @brief Get the number of virtual cells
+*
+* @param int index
+* @return McCadTripoliCell *
+*
+* @date 31/04/2013
+* @author  Lei Lu
+************************************************************************/
 int McCadTripoliCell::GetNumVirCell()
 {
-    if(m_childCellList.empty())
-    {
-        return 0;
-    }
-    else
-    {
-        return m_childCellList.size();
-    }
+    return m_childCellList.size();
 }
 
 

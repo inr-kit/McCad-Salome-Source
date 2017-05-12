@@ -11,7 +11,6 @@ McCadSolid::~McCadSolid()
 {
 }
 
-
 /** ********************************************************************
 * @brief Add convex solids into convex solid list. A solid is consist of
 *        many convex solids commonly.
@@ -75,3 +74,53 @@ void McCadSolid::SetName(TCollection_AsciiString theMatName)
 {
    m_name = theMatName;
 }
+
+
+
+
+/** ********************************************************************
+* @brief Get the id of solid
+*
+* @param
+* @return Standard_Integer
+*
+* @date 05/11/2013
+* @author  Lei Lu
+***********************************************************************/
+Standard_Integer McCadSolid::GetID()
+{
+    return m_id;
+}
+
+
+
+/** ********************************************************************
+* @brief Get the density of solid
+*
+* @param
+* @return Standard_Real
+*
+* @date 05/11/2013
+* @author  Lei Lu
+***********************************************************************/
+Standard_Real McCadSolid::GetDensity()
+{
+    return m_density;
+}
+
+
+
+/** ********************************************************************
+* @brief Get the name of solid
+*
+* @param
+* @return TCollection_AsciiString
+*
+* @date 05/11/2013
+* @author  Lei Lu
+***********************************************************************/
+TCollection_AsciiString McCadSolid::GetName()
+{
+    return m_name;
+}
+

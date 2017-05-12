@@ -44,9 +44,6 @@ McCadGeomCone::McCadGeomCone(const GeomAdaptor_Surface & theSurface)
     if( McCadMathTool::IsEqualZero(m_Apex.Z()))
         m_Apex.SetZ(0.0);
 
-
-
-
     cone.Coefficients( m_dPrmtA1,m_dPrmtA2,m_dPrmtA3,   // Get the parameters
                        m_dPrmtB1,m_dPrmtB2,m_dPrmtB3,
                        m_dPrmtC1,m_dPrmtC2,m_dPrmtC3,
@@ -111,7 +108,7 @@ TCollection_AsciiString McCadGeomCone::GetExpression()
     Standard_Real dis_tol = McCadConvertConfig::GetTolerence();
     Standard_Real angle_tol = 1.0e-3; //McCadConvertConfig::GetTolerence();
 
-    if ( m_Axis.IsCoplanar(Ax3_X, angle_tol,angle_tol))
+    if ( m_Axis.IsCoplanar(Ax3_X, dis_tol,angle_tol))
     {
         if (fabs(m_Apex.X()) >= dis_tol
                 && fabs(m_Apex.Y()) <= dis_tol
@@ -147,7 +144,7 @@ TCollection_AsciiString McCadGeomCone::GetExpression()
             m_PrmtList.push_back(1);
         }
     }
-    else if( m_Axis.IsCoplanar(Ax3_Y, angle_tol,angle_tol))
+    else if( m_Axis.IsCoplanar(Ax3_Y, dis_tol,angle_tol))
     {
         if (fabs(m_Apex.Y()) >= dis_tol
                 && fabs(m_Apex.X()) <= dis_tol
@@ -184,7 +181,7 @@ TCollection_AsciiString McCadGeomCone::GetExpression()
         }
 
     }
-    else if( m_Axis.IsCoplanar(Ax3_Z, angle_tol,angle_tol))
+    else if( m_Axis.IsCoplanar(Ax3_Z, dis_tol,angle_tol))
     {
         if (fabs(m_Apex.Z()) >= dis_tol
                 && fabs(m_Apex.X()) <= dis_tol
@@ -258,12 +255,33 @@ TCollection_AsciiString McCadGeomCone::GetExpression()
 }
 
 
+
+
+/** ********************************************************************
+* @brief Add the transform card
+*
+* @param
+* @return void
+*
+* @date 31/8/2012
+* @author  Lei Lu
+************************************************************************/
 void McCadGeomCone::AddTransfCard(McCadGeomData * pData)
 {
     m_iTrNum = pData->AddTransfCard(m_Axis,m_Apex);
 }
 
 
+
+/** ********************************************************************
+* @brief Get the transform card number
+*
+* @param
+* @return TCollection_AsciiString
+*
+* @date 31/8/2012
+* @author  Lei Lu
+************************************************************************/
 TCollection_AsciiString McCadGeomCone::GetTransfNum()const
 {
     if(m_iTrNum != 0)
@@ -278,10 +296,24 @@ TCollection_AsciiString McCadGeomCone::GetTransfNum()const
 
 }
 
+
+
+/** ********************************************************************
+* @brief If the surface has transform card
+*
+* @param
+* @return Standard_Boolean
+*
+* @date 31/8/2012
+* @author  Lei Lu
+************************************************************************/
 Standard_Boolean McCadGeomCone::HaveTransfCard()
 {
     return m_bTransfCrad;
 }
+
+
+
 
 /** ********************************************************************
 * @brief Judge the geometry of two cones are same or not
@@ -304,7 +336,7 @@ Standard_Boolean McCadGeomCone::IsEqual(IGeomFace *& theSurf)
     assert(pCone);
 
     Standard_Real dis_tol = McCadConvertConfig::GetTolerence();
-    Standard_Real angle_tol = 1.0e-3; //McCadConvertConfig::GetTolerence();
+    Standard_Real angle_tol = 1.0e-3*M_PI; //McCadConvertConfig::GetTolerence();
 
     // If the Axis is same or opposite, the radius is same and the point on axis is same
     // the two cylinder can be treated as same cylinder
@@ -368,10 +400,10 @@ gp_Dir McCadGeomCone::GetAxisDir() const
 
 
 /** ********************************************************************
-* @brief
+* @brief Clean the created objects
 *
 * @param
-* @return
+* @return void
 *
 * @date 31/8/2012
 * @author  Lei Lu
@@ -384,10 +416,11 @@ void McCadGeomCone::CleanObj() const
 
 
 /** ********************************************************************
-* @brief
+* @brief Compared with other faces, get the priorites for surface sorting.
+*        The sequence is given at McCadConvertConfig.
 *
-* @param
-* @return
+* @param const IGeomFace *& theGeoFace
+* @return Standard_Boolean
 *
 * @date 31/8/2012
 * @author  Lei Lu
@@ -403,7 +436,8 @@ Standard_Boolean McCadGeomCone::Compare(const IGeomFace *& theGeoFace)
     else if ( McCadConvertConfig::GetSurfSequNum(m_SurfSymb)
                  == McCadConvertConfig::GetSurfSequNum(theGeoFace->GetSurfSymb()))
     {
-        if ( m_PrmtList[0] < theGeoFace->GetPrmtList()[0])
+//qiu        if ( m_PrmtList[0] < theGeoFace->GetPrmtList()[0])
+        if ( m_PrmtList[0] < const_cast<IGeomFace *&>(theGeoFace)->GetPrmtList()[0])
         {
             return Standard_True;
         }

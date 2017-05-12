@@ -27,11 +27,11 @@ public:
     McCadGeomTorus(const GeomAdaptor_Surface & theSurface);
     virtual ~McCadGeomTorus();
 
-    virtual TCollection_AsciiString GetExpression();          /**< Get the expression of torus */
-    virtual Standard_Boolean IsEqual(IGeomFace *& theSurf);   /**< Judge the two torus is same or not */
-    virtual void CleanObj() const;                            /**< Clean the generated objects */
-    virtual Standard_Boolean Compare(const IGeomFace *& theGeoFace) ;  /**<  */
-    virtual TCollection_AsciiString GetTransfNum() const;
+    virtual TCollection_AsciiString GetExpression();            /**< Get the expression of torus */
+    virtual Standard_Boolean IsEqual(IGeomFace *& theSurf);     /**< Judge the two torus is same or not */
+    virtual void CleanObj() const;                              /**< Clean the generated objects */
+    virtual Standard_Boolean Compare(const IGeomFace *& theGeoFace) ;  /**< Compare the priority for sorting */
+    virtual TCollection_AsciiString GetTransfNum() const;       /**< Get the transform card */
 
     gp_Pnt GetCenter() const;                       /**< Get the center of torus */
     gp_Dir GetAxisDir() const;                      /**< Get the direction of axis */

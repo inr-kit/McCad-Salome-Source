@@ -185,7 +185,7 @@ Standard_Boolean McCadGeomPlane::IsEqual(IGeomFace *& theSurf)
     }
 
     Standard_Real dis_tol = 1.0e-5 /*McCadConvertConfig::GetTolerence()*/;
-    Standard_Real angle_tol = 1.0e-3; //McCadConvertConfig::GetTolerence();
+    Standard_Real angle_tol = 1.0e-3*M_PI; //McCadConvertConfig::GetTolerence();
 
     /* If the direction and parameter d is same, the two faces are treated as same */
     if( m_Dir.IsEqual( ((McCadGeomPlane*)(theSurf))->GetDir(), angle_tol )
@@ -246,10 +246,10 @@ Standard_Real McCadGeomPlane::GetPrmtD() const
 
 
 /** ********************************************************************
-* @brief
+* @brief Clean the created objects
 *
 * @param
-* @return
+* @return void
 *
 * @date 31/8/2012
 * @author  Lei Lu
@@ -261,10 +261,11 @@ void McCadGeomPlane::CleanObj() const
 
 
 /** ********************************************************************
-* @brief
+* @brief Compared with other faces, get the priorites for surface sorting.
+*        The sequence is given at McCadConvertConfig.
 *
-* @param
-* @return
+* @param const IGeomFace *& theGeoFace
+* @return Standard_Boolean
 *
 * @date 31/8/2012
 * @author  Lei Lu
@@ -279,7 +280,9 @@ Standard_Boolean McCadGeomPlane::Compare(const IGeomFace *& theGeoFace)
     else if ( McCadConvertConfig::GetSurfSequNum(m_SurfSymb)
                  == McCadConvertConfig::GetSurfSequNum(theGeoFace->GetSurfSymb()))
     {
-        if ( m_PrmtList[0] < theGeoFace->GetPrmtList()[0])
+//qiu        if ( m_PrmtList[0] < theGeoFace->GetPrmtList()[0])
+        if ( m_PrmtList[0] < const_cast<IGeomFace *&>(theGeoFace)->GetPrmtList()[0])
+
         {
             return Standard_True;
         }
@@ -296,7 +299,15 @@ Standard_Boolean McCadGeomPlane::Compare(const IGeomFace *& theGeoFace)
 
 
 
-
+/** ********************************************************************
+* @brief Get the transform card
+*
+* @param
+* @return TCollection_AsciiString
+*
+* @date 31/8/2012
+* @author  Lei Lu
+************************************************************************/
 TCollection_AsciiString McCadGeomPlane::GetTransfNum() const
 {
     return "";

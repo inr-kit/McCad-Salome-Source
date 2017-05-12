@@ -139,8 +139,8 @@ class MCCADGUI_ImportObjDialog:  public QDialog, Ui::MCCADGUI_ImportObjDialog
 
 public:
    MCCADGUI_ImportObjDialog(QWidget*parent, MCCADGUI_DataModel * dm );
-   void     SetSourceObjName(const QString & aName);
-   void     SetMCCADObjName(const QString & aName);
+   void     SetSourceObjName(const QStringList &aNameList);
+   void     SetMCCADObjName(const QStringList & aNameList);
 
 private slots:
    void     onOK();

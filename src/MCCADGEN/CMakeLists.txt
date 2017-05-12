@@ -31,7 +31,7 @@ INCLUDE_DIRECTORIES(
   ${MEDFILE_INCLUDE_DIRS}
   ${CPPUNIT_INCLUDE_DIRS}
 #  ${McCad_INCLUDE_DIRS}
-  ${PROJECT_SOURCE_DIR}/src/MCCAD/McCadHeaders  #sorry, just temporary...
+#  ${PROJECT_SOURCE_DIR}/src/MCCAD/McCadHeaders  #sorry, just temporary...
   ${NETGEN_INCLUDE_DIRS}
   ${TETGEN_INCLUDE_DIRS}
   )

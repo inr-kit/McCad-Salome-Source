@@ -29,15 +29,15 @@ public:
     virtual TCollection_AsciiString GetExpression();                /**< Get the expression of surface */
     virtual Standard_Boolean IsEqual(IGeomFace *& theSurf);         /**< The two surfcce are same or not */
     virtual void CleanObj() const;                                  /**< Clean the generated objects */
-    virtual Standard_Boolean Compare(const IGeomFace *& theGeoFace) ;        /**< Clean the object */
-    virtual TCollection_AsciiString GetTransfNum() const;
+    virtual Standard_Boolean Compare(const IGeomFace *& theGeoFace);/**< Clean the object */
+    virtual TCollection_AsciiString GetTransfNum() const;           /**< Get the transform card */
 
     gp_Pnt GetCenter() const;                                       /**< Get the center of sphere */
     Standard_Real GetRadius() const;                                /**< Get the radius of sphere */
 
 private:
-    Standard_Real m_Radius;
-    gp_Pnt m_Center;
+    Standard_Real m_Radius;         /**< The radius of sphere */
+    gp_Pnt m_Center;                /**< The center of sphere */
 
 };
 

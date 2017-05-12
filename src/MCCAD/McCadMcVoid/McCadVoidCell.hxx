@@ -11,16 +11,10 @@
 #include <TopoDS_Solid.hxx>
 #include <Bnd_Box.hxx>
 #include "McCadConvexSolid.hxx"
+#include "McCadVoidCollision.hxx"
 #include <memory>
 
 using namespace std;
-
-typedef struct{
-    int SolidNum;
-    vector<int> FaceList;
-    vector< vector<int> > AuxFaceList;
-}COLLISION;
-
 enum SplitAxis{ XAxis = 1,
                 YAxis = 2,
                 ZAxis = 3};
@@ -31,80 +25,81 @@ class McCadGeomData;
 class McCadVoidCell : public TopoDS_Solid
 {
 public:
+
+    void* operator new(size_t,void* anAddress)
+    {
+      return anAddress;
+    }
+    void* operator new(size_t size)
+    {
+      return Standard::Allocate(size);
+    }
+    void  operator delete(void *anAddress)
+    {
+      if (anAddress) Standard::Free((Standard_Address&)anAddress);
+    }
+
 Standard_EXPORT    McCadVoidCell();
 Standard_EXPORT    McCadVoidCell(const TopoDS_Solid & theSolid);
+Standard_EXPORT    ~McCadVoidCell();
 
 private:
-    enum cutplane{x=0,y=1,z=2};         // Cut the void cell when it is collied with too many solids
 
+    vector<int> m_CollidedSolidNumList;   /**< Record the index of convex solid list who is collided with void cell*/
 
-    vector<int> m_CollidedSolidNumList;     // Record the solid no who is collided with void cell
-    // Which boundary faces of the solid is collied with the void cell.
-    // the first parameter(int) is the solid no, the second is the list
-    // of the collided boundary faces.
-    map<int,TopTools_HSequenceOfShape> mapCollidedFaceNo;
+    gp_Pnt m_MaxPnt;                      /**< The max point of the boundary box */
+    gp_Pnt m_MinPnt;                      /**< The min point of the boundary box */
 
-    gp_Pnt m_MaxPnt;                      // The max point of the boundary box
-    gp_Pnt m_MinPnt;                      // The min point of the boundary box
+    TCollection_AsciiString m_szExpression;         /**< MCNP expression of solid */
 
-    TCollection_AsciiString m_szExpression;         // MCNP expression of solid
-    int iLengthOfExpression;                        // Length of MCNP expression
+    Standard_Boolean m_bHaveBndBox;                 /**< If Boundary box has been generated */
+    Bnd_Box m_bBox;                                 /**< The boundary box */
 
-    Standard_Boolean m_bHaveBndBox;                         /**< If Boundary box has been generated */
-    Bnd_Box m_bBox;                                         /**< The boundary box */
+    vector<McCadVoidCollision *> m_CollisionList;   /**< Record the collied convex solids */
+    vector<McCadExtBndFace*> m_BndFaceList;         /**< Boundary faces list of void solid */
 
-    vector<COLLISION> m_Collision;
-    vector<McCadExtFace*> m_FaceList;                       /**< Face list of void solid */
+    SplitAxis m_SplitAxis;          /**< if the box contains too many collied surfaces, split the box using X,Y or Z*/
+    Standard_Integer m_iSplitDepth; /**< How many levels has been splitted */
 
-    SplitAxis m_SplitAxis;
-    Standard_Integer m_iSplitDepth;
+    Handle_TColgp_HSequenceOfPnt m_VertexList;      /**< The vertex of void box */
 
-    Handle_TColgp_HSequenceOfPnt m_VertexList;
-    //Handle_TopTools_HSequenceOfShape m_NFaceList;
+public:  
 
-public:
+Standard_EXPORT    Bnd_Box GetBntBox();            /**< Get the boundary box */
+Standard_EXPORT    void AddColliedSolidNum(Standard_Integer index); /**< Add the index of collied convex solid in list */
 
-Standard_EXPORT    Standard_Boolean IsCollided(const TopoDS_Shape & Solid);                      // Whether is collided with solid
-Standard_EXPORT    void DetectCollision(const Handle(TopTools_HSequenceOfShape) & SolidList);    // Detect the collision with solids list
+    /**< Set the boundary box */
+Standard_EXPORT    void SetBntBox(Standard_Real fXmin, Standard_Real fYmin, Standard_Real fZmin,
+                   Standard_Real fXmax, Standard_Real fYmax, Standard_Real fZmax);
 
-Standard_EXPORT    void GenerateMCNPExpression();                                                // Generate the MCNP expression
-Standard_EXPORT    Bnd_Box GetBntBox();
-Standard_EXPORT    void SetVertexList();
-Standard_EXPORT    void AddColliedSolidNum(Standard_Integer iNum);
+Standard_EXPORT    TCollection_AsciiString GetOutVoidExpression(); /**< Get the outside void space beside the material solid and filled void space */
+Standard_EXPORT    vector<McCadExtBndFace*> GetGeomFaceList();     /**< Get the boundary faces of void box */
 
-Standard_EXPORT    vector<int> GetColliedSolidList();    
-    //void CalColliedFaces(vector <McCadConvexSolid *> & solid_list);
-Standard_EXPORT    Standard_Boolean CalColliedPoints(Handle_TColgp_HSequenceOfPnt point_list);
+    /**< if the void expression is too long, split it into two parts */
+Standard_EXPORT    Standard_Boolean SplitVoidCell(vector<McCadVoidCell*> & void_list,McCadGeomData * pData);
 
-Standard_EXPORT    Bnd_Box SetBntBox(Standard_Real fXmin, Standard_Real fYmin, Standard_Real fZmin,
-                      Standard_Real fXmax, Standard_Real fYmax, Standard_Real fZmax);
-Standard_EXPORT    TCollection_AsciiString GetExpression();
-Standard_EXPORT    TCollection_AsciiString GetOutVoidExpression();
-Standard_EXPORT    vector<McCadExtFace*> GetGeomFaceList();
+Standard_EXPORT    void SetSplitDepth(Standard_Integer iSplitDepth);   /**< Set the split depth */
+Standard_EXPORT    void ChangeFaceNum(McCadGeomData * pData);          /**< Change the face number after surface sorting */
+Standard_EXPORT    void CalColliedFaces(McCadGeomData *pData);         /**< Calculate which surfaces of material solid collied with box */
 
-Standard_EXPORT    Standard_Boolean SplitVoidCell(vector<McCadVoidCell*> & void_list,
-                                   McCadGeomData * pData);
+Standard_EXPORT    vector<McCadExtBndFace *> GetBndFaces();            /**< Get the boundary faces of void box */
+Standard_EXPORT    vector<McCadVoidCollision*> GetCollisions();        /**< Get the collisions with material solids*/
 
-Standard_EXPORT    void SetSplitAxis(SplitAxis split_axis);
-Standard_EXPORT    void SetCollidedSolidNumList(vector<int> theCollidedSolidNumList );
-Standard_EXPORT    void SetSplitDepth(Standard_Integer iSplitDepth);
+private:
 
-Standard_EXPORT    void ChangeFaceNum(McCadGeomData * pData);
-Standard_EXPORT    void CalColliedFaces(McCadGeomData *pData);
+    void SetVertexList();                               /**< Get the vertexes and save into list */
+    TCollection_AsciiString GetExpression();            /**< Get the expression of void cell */
+    Standard_Boolean IsPointInBBox(gp_Pnt pnt);         /**< If the point is in the box */
 
-Standard_EXPORT    Standard_Boolean IsPointInBBox(gp_Pnt pnt);
+    /**< Set the collied solid index list */
+    void SetCollidedSolidNumList(vector<int> theCollidedSolidNumList );
 
-Standard_EXPORT    Standard_Integer SideofFace(gp_Pnt pnt, McCadExtFace *& theFace);
-Standard_EXPORT    Standard_Boolean CalColliedVertex(McCadExtFace *& theFace);
-Standard_EXPORT    Standard_Boolean IsVertexInSolid(McCadConvexSolid *& pSolid);
-Standard_EXPORT    Standard_Boolean CalColliedFace(McCadExtFace *& theFace);
-Standard_EXPORT    Standard_Boolean CalColliedBox(Bnd_Box & box);
-Standard_EXPORT    Standard_Boolean PntInBox(gp_Pnt &pnt, Bnd_Box & box);
+    Standard_Boolean IsVertexInSolid(McCadConvexSolid *& pSolid);   /**< If the vertex of box is in the solid */
+    Standard_Boolean CalColliedFace(McCadExtBndFace *&theFace);     /**< The box is collied with face */
+    Standard_Boolean CalColliedBox(Bnd_Box & box);                  /**< If the box is collied with another box*/
 
- Standard_EXPORT   vector<McCadExtFace*> GetFaces();
- Standard_EXPORT   vector<COLLISION> GetCollision();
-
-
+    /**< Calculate the collision with sample points */
+    Standard_Boolean CalColliedPoints(Handle_TColgp_HSequenceOfPnt point_list);
 };
 
 #endif // MCCADVOIDCELL_HXX

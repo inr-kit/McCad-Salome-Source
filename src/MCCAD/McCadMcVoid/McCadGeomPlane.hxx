@@ -26,15 +26,15 @@ public:
     McCadGeomPlane(const GeomAdaptor_Surface & theSurface);
 
     virtual ~McCadGeomPlane();
-    virtual TCollection_AsciiString GetTransfNum() const;
+    virtual TCollection_AsciiString GetTransfNum() const;            /**< Get the transformation card number */
 
-    virtual TCollection_AsciiString GetExpression();                /**< Calculate the equation and direction of plane */
-    virtual Standard_Boolean IsEqual(IGeomFace *& theGeoFace);      /**< Judge the two planes are same or not */
-    virtual void CleanObj() const;                                  /**< Clean the generated objects */
-    virtual Standard_Boolean Compare(const IGeomFace *& theGeoFace);      /**< Clean the object */
+    virtual TCollection_AsciiString GetExpression();                 /**< Calculate the equation and direction of plane */
+    virtual Standard_Boolean IsEqual(IGeomFace *& theGeoFace);       /**< Judge the two planes are same or not */
+    virtual void CleanObj() const;                                   /**< Clean the generated objects */
+    virtual Standard_Boolean Compare(const IGeomFace *& theGeoFace); /**< Clean the object */
 
-    Standard_Real GetPrmtD() const;                                 /**< Get parameter D */
-    gp_Dir GetDir() const;                                          /**< Get the parameter of surface */
+    Standard_Real GetPrmtD() const;                                  /**< Get parameter D */
+    gp_Dir GetDir() const;                                           /**< Get the parameter of surface */
 
 private:
 

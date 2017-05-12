@@ -41,10 +41,10 @@ public:
     }
 
 Standard_EXPORT    McCadVoidCellManager();
-Standard_EXPORT    ~McCadVoidCellManager();   
+Standard_EXPORT    ~McCadVoidCellManager();
 
 //private:  //qiu
-protected:
+    protected:
 
     Standard_Boolean m_bHaveMaterial;       /**< If the material file is existed, set true, else set false */
     Standard_Boolean m_bGenerateVoid;       /**< The switch of void generation */
@@ -56,21 +56,24 @@ protected:
     TCollection_AsciiString m_OutFileName;  /**< The name of output file */
 
 public:
+//qiu add Standard_EXPORT
     /** Read the model, create the McCadGeomData object to store the geometry data. */
-Standard_EXPORT    void ReadGeomData(Handle_TopTools_HSequenceOfShape & solid_list);   
+Standard_EXPORT    void ReadGeomData(Handle_TopTools_HSequenceOfShape & solid_list);
     /** Read the material xml file and store the material information */
 Standard_EXPORT    void ReadMatData(TCollection_AsciiString &theMatFile);
 
-Standard_EXPORT    void SetOutFileName(TCollection_AsciiString theFileName);/**< Set the output file name */
 Standard_EXPORT    McCadGeomData * GetGeomData();          /**< Get the pointer of geometry data */
 Standard_EXPORT    MaterialManager * GetMatManager();      /**< Get the material manager pointer */
-Standard_EXPORT    void AddMatOnSolid();                   /**< Add the material information on each solid */
-Standard_EXPORT    void SetConvetor(TCollection_AsciiString theConvertor); /**< Set the convetor to tripoli or mcnp, or other codes */
+
 Standard_EXPORT    Standard_Boolean GenVoid();             /**< Generate void or not */
+Standard_EXPORT    void Process();                         /**< The main procesure */
 
-Standard_EXPORT    void Process(); /**< The main procesure */
+Standard_EXPORT    void SetOutFileName(TCollection_AsciiString theFileName);   /**< Set the output file name */
+Standard_EXPORT    void SetConvetor(TCollection_AsciiString theConvertor);     /**< Set the convetor to tripoli or mcnp, or other codes */
 
+private:
 
+    void AddMatOnSolid();                   /**< Add the material information on each solid */
 };
 
 

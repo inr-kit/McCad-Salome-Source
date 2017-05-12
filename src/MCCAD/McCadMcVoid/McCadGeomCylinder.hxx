@@ -31,14 +31,14 @@ public:
     virtual TCollection_AsciiString GetExpression();            /**< Calculate the equation and direction of plane */
     virtual Standard_Boolean IsEqual(IGeomFace *& theGeoFace);  /**< Judge the two cylinder are same or not */
     virtual void CleanObj() const;                              /**< Clean the generated objects */
-    virtual Standard_Boolean Compare(const IGeomFace *& theGeoFace) ;    /**<  */
+    virtual Standard_Boolean Compare(const IGeomFace *& theGeoFace) ;    /**< Compare the priority for sorting */
 
     virtual TCollection_AsciiString GetTransfNum() const;
 
     Standard_Real GetRadius() const;                            /**< Get radius */
     gp_Pnt GetPoint() const;                                    /**< Get point on axis */
     gp_Dir GetAxisDir() const;                                  /**< Get direction of axis */
-    void SimplifyPrmt(Standard_Real &thePrmt);
+    void SimplifyPrmt(Standard_Real &thePrmt);                  /**< Simplify the coefficients */
 
 private:
 

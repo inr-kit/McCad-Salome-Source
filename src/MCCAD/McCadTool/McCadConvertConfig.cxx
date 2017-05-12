@@ -1,6 +1,8 @@
 #include "McCadConvertConfig.hxx"
+//qiu add SALOME definition
+#ifndef SALOME
 #include <McCadMessenger_Singleton.hxx>
-
+#endif
 #include <QtXml/QDomComment>
 #include <QFile>
 
@@ -17,11 +19,9 @@ double McCadConvertConfig::m_dAngleTolerance = 1.0e-3;
 unsigned int McCadConvertConfig::m_iVoidDecomposeDepth = 10;
 unsigned int McCadConvertConfig::m_iInitCellNum = 0;
 unsigned int McCadConvertConfig::m_iInitSurfNum = 0;
-//qiu unsigned int McCadConvertConfig::m_iXResolution = 50;
-double McCadConvertConfig::m_iXResolution = 0.001;
-//qiu unsigned int McCadConvertConfig::m_iYResolution = 50;
-double McCadConvertConfig::m_iYResolution = 0.001;
-double McCadConvertConfig::m_iRResolution = 0.0314;
+double McCadConvertConfig::m_fXResolution = 0.001;
+double McCadConvertConfig::m_fYResolution = 0.001;
+double McCadConvertConfig::m_fRResolution = 0.0314;
 
 unsigned int McCadConvertConfig::m_iMaxSmplPntNum = 50;
 unsigned int McCadConvertConfig::m_iMinSmplPntNum = 20;
@@ -107,10 +107,8 @@ void McCadConvertConfig::SetSurfSequ()
     iInitCellNum = root.attributeNode("InitCellNum").nodeValue().toInt();
     iInitSurfNum = root.attributeNode("InitSurfNum").nodeValue().toInt();
 
-//qiu    iXResolution = root.attributeNode("XResolution").nodeValue().toInt();
-//qiu    iYResolution = root.attributeNode("YResolution").nodeValue().toInt();
-    iXResolution = root.attributeNode("XResolution").nodeValue().toDouble();
-    iYResolution = root.attributeNode("YResolution").nodeValue().toDouble();
+    iXResolution = root.attributeNode("XResolution").nodeValue().toInt();
+    iYResolution = root.attributeNode("YResolution").nodeValue().toInt();
 
     iMaxSmplPntNum = root.attributeNode("MaxSamplePoints").nodeValue().toInt();
     iMinSmplPntNum = root.attributeNode("MinSamplePoints").nodeValue().toInt();
@@ -128,15 +126,21 @@ void McCadConvertConfig::SetSurfSequ()
 
 bool McCadConvertConfig::ReadPrmt(const TCollection_AsciiString InputFileName)
 {
+#ifndef SALOME
     McCadMessenger_Singleton* msgr = McCadMessenger_Singleton::Instance();
+#endif
     TCollection_AsciiString message("_#_McCadConvertTools_InputFileParser :: ");
 
     // open parameter file
     ifstream inFile(InputFileName.ToCString());
     if (!inFile) {
+#ifndef SALOME
         message.AssignCat("Cannot open parameter file : ");
         message.AssignCat(InputFileName);
         msgr->Message( message.ToCString(), McCadMessenger_ErrorMsg );
+#else
+        cout << message.ToCString()<<endl;
+#endif
         return false;
     }
 
@@ -221,21 +225,19 @@ bool McCadConvertConfig::ReadPrmt(const TCollection_AsciiString InputFileName)
                 if(!numString.IsIntegerValue() && !numString.IsRealValue())
                     MissmatchMessage(iString,numString);
                 else
-//qiu                    m_iXResolution = numString.IntegerValue();
-                    m_iXResolution = numString.RealValue();
+                    m_fXResolution = numString.RealValue();
             }
             else if(iString.IsEqual("YRESOLUTION")) {
                 if(!numString.IsIntegerValue() && !numString.IsRealValue())
                     MissmatchMessage(iString,numString);
                 else
-//qiu                    m_iYResolution = numString.IntegerValue();
-                   m_iYResolution = numString.RealValue();
+                   m_fYResolution = numString.RealValue();
             }
             else if(iString.IsEqual("RRESOLUTION")) {
                 if(!numString.IsIntegerValue() && !numString.IsRealValue())
                     MissmatchMessage(iString,numString);
                 else
-                   m_iRResolution = numString.RealValue();
+                   m_fRResolution = numString.RealValue();
             }
             else if(iString.IsEqual("MINIMUMNUMBEROFSAMPLEPOINTS")) {
                 if(!numString.IsIntegerValue() && !numString.IsRealValue())
@@ -296,7 +298,11 @@ bool McCadConvertConfig::ReadPrmt(const TCollection_AsciiString InputFileName)
             else{
                 TCollection_AsciiString message("_#_McCadIOHelper_InputFileParser :: Unknown keyword : ");
                 message.AssignCat(iString);
+#ifndef SALOME
                 msgr->Message(message.ToCString(), McCadMessenger_WarningMsg);
+#else
+        cout <<message.ToCString() <<endl;
+#endif
             }
         }
     }
@@ -306,15 +312,20 @@ bool McCadConvertConfig::ReadPrmt(const TCollection_AsciiString InputFileName)
 
 void McCadConvertConfig::MissmatchMessage(TCollection_AsciiString &keyword, TCollection_AsciiString &parameter)
 {
+#ifndef SALOME
     McCadMessenger_Singleton* msgr = McCadMessenger_Singleton::Instance();
+#endif
     TCollection_AsciiString message("_#_McCadConvertTools_InputFileParser :: ");
     message.AssignCat("unexpected data type for keyword \'");
     message.AssignCat(keyword);
     message.AssignCat("\' ( ");
     message.AssignCat(parameter);
     message.AssignCat(" ) ");
-
+#ifndef SALOME
     msgr->Message(message.ToCString());
+#else
+        cout <<message.ToCString() <<endl;
+#endif
 }
 
 
@@ -324,6 +335,7 @@ void McCadConvertConfig::SetMinMaxSmplPntNum(int iMinPnt,int iMaxPnt)
     m_iMaxSmplPntNum = iMaxPnt;
 }
 
+//qiu add Set** functions
 
 
 bool McCadConvertConfig::WriteCollisionFile(){return m_bWriteCollisionFile;}
@@ -339,12 +351,9 @@ double McCadConvertConfig::GetMinVoidVol(){return m_dMinVoidVol;}
 unsigned int McCadConvertConfig::GetVoidDecomposeDepth(){return m_iVoidDecomposeDepth;}
 unsigned int McCadConvertConfig::GetInitCellNum(){return m_iInitCellNum;}
 unsigned int McCadConvertConfig::GetInitSurfNum(){return m_iInitSurfNum;}
-//qiu unsigned int McCadConvertConfig::GetXResolution(){return m_iXResolution;}
-double McCadConvertConfig::GetXResolution(){return m_iXResolution;}
-//qiu unsigned int McCadConvertConfig::GetYResolution(){return m_iYResolution;}
-double McCadConvertConfig::GetYResolution(){return m_iYResolution;}
-//qiu unsigned int McCadConvertConfig::GetRResolution(){return m_iRResolution;}
-double McCadConvertConfig::GetRResolution(){return m_iRResolution;}
+double McCadConvertConfig::GetXResolution(){return m_fXResolution;}
+double McCadConvertConfig::GetYResolution(){return m_fYResolution;}
+double McCadConvertConfig::GetRResolution(){return m_fRResolution;}
 unsigned int McCadConvertConfig::GetMaxSmplPntNum(){return m_iMaxSmplPntNum;}
 unsigned int McCadConvertConfig::GetMinSmplPntNum(){return m_iMinSmplPntNum;}
 
@@ -367,12 +376,9 @@ void McCadConvertConfig::SetMinVoidVol(const double & dMinVoidVol ){ m_dMinVoidV
 void McCadConvertConfig::SetVoidDecomposeDepth(const unsigned int & iVoidDecomposeDepth){ m_iVoidDecomposeDepth = iVoidDecomposeDepth;}
 void McCadConvertConfig::SetInitCellNum(const unsigned int & iInitCellNum){ m_iInitCellNum = iInitCellNum;}
 void McCadConvertConfig::SetInitSurfNum(const unsigned int & iInitSurfNum){ m_iInitSurfNum = iInitSurfNum;}
-//qiu void McCadConvertConfig::SetXResolution(const unsigned int & iXResolution){ m_iXResolution = iXResolution;}
-void McCadConvertConfig::SetXResolution(const double & iXResolution){ m_iXResolution = iXResolution;}
-//qiu void McCadConvertConfig::SetYResolution(const unsigned int & iYResolution){ m_iYResolution = iYResolution;}
-void McCadConvertConfig::SetYResolution(const double & iYResolution){ m_iYResolution = iYResolution;}
-//qiu void McCadConvertConfig::SetRResolution(const unsigned int & iRResolution){ m_iRResolution = iRResolution;}
-void McCadConvertConfig::SetRResolution(const double & iRResolution){ m_iRResolution = iRResolution;}
+void McCadConvertConfig::SetXResolution(const double & fXResolution){ m_fXResolution = fXResolution;}
+void McCadConvertConfig::SetYResolution(const double & fYResolution){ m_fYResolution = fYResolution;}
+void McCadConvertConfig::SetRResolution(const double & fRResolution){ m_fRResolution = fRResolution;}
 void McCadConvertConfig::SetMaxSmplPntNum(const unsigned int & iMaxSmplPntNum){ m_iMaxSmplPntNum = iMaxSmplPntNum;}
 void McCadConvertConfig::SetMinSmplPntNum(const unsigned int & iMinSmplPntNum){ m_iMinSmplPntNum = iMinSmplPntNum;}
 

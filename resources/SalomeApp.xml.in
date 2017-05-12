@@ -72,7 +72,8 @@
     <!-- Tetrahedral mesh generation preferences -->
     <parameter name="meshing_engine"                     value="0"/>
     <parameter name="STL_Deflection"                  value="0.001"/>
-    <parameter name="STL_Coefficient"                 value="0.01"/>
+<!--    <parameter name="STL_Coefficient"                 value="0.001"/> -->
+    <parameter name="Vol_Threshold"                 value="0.0"/>
     <parameter name="Tet_MeshQuality"                 value="2.0"/>
     <parameter name="Mesh_Volume_Diff"                value="0.01"/>
   </section>

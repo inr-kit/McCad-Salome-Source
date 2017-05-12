@@ -239,7 +239,7 @@ S_McCadSolid * S_McCadGeomData::S_GenSMcCadSolid( const TopoDS_Shape & aShape)
                 }
 
                 AddGeomSurfList(pConvexSolid->GetSTLFaceList());    // Travelse the boundary faces, add in face list
-                AddGeomAuxSurfList(pConvexSolid->GetSTLFaceList()); // Judge whether need add auxiliary faces
+                /*AddGeomAuxSurfList*/AddGeomAstSurfList(pConvexSolid->GetSTLFaceList()); // Judge whether need add auxiliary faces
                 pSolidList->AddConvexSolid(pConvexSolid);           // Add the convex solid into a complicate solid
 
                 pConvexSolid->DeleteRepeatFaces(m_bGenerateVoid);    // Delete the repeated faces of solid
@@ -277,7 +277,7 @@ S_McCadSolid * S_McCadGeomData::S_GenSMcCadSolid( const TopoDS_Shape & aShape)
             }
 
             AddGeomSurfList(pConvexSolid->GetSTLFaceList());    // Travelse the boundary faces, add in face list
-            AddGeomAuxSurfList(pConvexSolid->GetSTLFaceList()); // Judge whether need add auxiliary faces
+            /*AddGeomAuxSurfList*/AddGeomAstSurfList(pConvexSolid->GetSTLFaceList()); // Judge whether need add auxiliary faces
             pSolidList->AddConvexSolid(pConvexSolid);           // Add the convex solid into a complicate solid
 
             pConvexSolid->DeleteRepeatFaces(1);                  // Delete the repeated faces of solid

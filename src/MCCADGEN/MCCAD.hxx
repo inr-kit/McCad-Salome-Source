@@ -96,8 +96,8 @@ public:
     void            setShapeStream(const SALOMEDS::TMPFile& aShapeStream) ;
     virtual TopoDS_Shape    getShape()          {return myShape;}
     void            recoverShape();
-    void            setIsDecomposed (CORBA::Boolean  isDecomposed) {myIsDecomposed = isDecomposed;}
-    CORBA::Boolean  getIsDecomposed () {return myIsDecomposed ;}
+    void            setIsDecomposed (CORBA::Boolean  isDecomposed) ;
+    CORBA::Boolean  getIsDecomposed ();
 
 
 //    CORBA::LongLong getShapePointer()          {return (CORBA::LongLong)(&myShape) ;} //in the same host
@@ -130,7 +130,7 @@ private:
 //    TopoDS_Shape    myShape;  //OCC instance for this part
     MCCAD_ORB::FixArray  myImportance; //importances N,P,S: -1:empty, no importance
     char *          myAdditive;  //additive card
-    bool            myIsDecomposed;
+    CORBA::Boolean  myIsDecomposed;
     TopoDS_Shape    myShapeBackup;  //Backup of last modification
     SALOME_MED::MEDCouplingUMeshCorbaInterface_ptr myMesh;   // MED unstrcutred mesh for MCNP6
 };
@@ -323,13 +323,16 @@ public:
 
     CORBA::Boolean             decomposePart(MCCAD_ORB::Part_ptr aPart);
     CORBA::Boolean             decomposeEnvelop(MCCAD_ORB::Component_ptr aComponent);
-    Handle_TopTools_HSequenceOfShape decomposeShape (const TopoDS_Shape & aShape);
+    CORBA::Boolean              decomposeShape (const TopoDS_Shape & aShape, Handle_TopTools_HSequenceOfShape & OutputSolids, Handle_TopTools_HSequenceOfShape & ErrorSolids);
     SALOME_MED::MEDCouplingUMeshCorbaInterface_ptr importMED(const char* MEDFileName)                                  throw (SALOME::SALOME_Exception);
     void                       export2MED(SALOME_MED::MEDCouplingUMeshCorbaInterface_ptr aMesh, const char* FileName)    throw (SALOME::SALOME_Exception);
     void                       exportAllMesh2Abaqus(CORBA::Long studyID, const char* FileName)   throw (SALOME::SALOME_Exception);
-    CORBA::Boolean             generateTetMesh(MCCAD_ORB::Part_ptr aPart, CORBA::Double aDeflection, CORBA::Double aCoefficient, CORBA::Double aMeshQuality) throw (SALOME::SALOME_Exception);
-    CORBA::Boolean             generateTetgenMesh(MCCAD_ORB::Part_ptr aPart, CORBA::Double aDeflection, CORBA::Double aCoefficient, CORBA::Double aMeshQuality) throw (SALOME::SALOME_Exception);
-    CORBA::Boolean             generateNetgenMesh(MCCAD_ORB::Part_ptr aPart, CORBA::Double aDeflection, CORBA::Double aCoefficient) throw (SALOME::SALOME_Exception);
+//    CORBA::Boolean             generateTetMesh(MCCAD_ORB::Part_ptr aPart, CORBA::Double aDeflection, CORBA::Double aCoefficient, CORBA::Double aMeshQuality) throw (SALOME::SALOME_Exception);
+//    CORBA::Boolean             generateTetgenMesh(MCCAD_ORB::Part_ptr aPart, CORBA::Double aDeflection, CORBA::Double aCoefficient, CORBA::Double aMeshQuality) throw (SALOME::SALOME_Exception);
+//    CORBA::Boolean             generateNetgenMesh(MCCAD_ORB::Part_ptr aPart, CORBA::Double aDeflection, CORBA::Double aCoefficient) throw (SALOME::SALOME_Exception);
+    CORBA::Boolean             generateTetMesh(MCCAD_ORB::Part_ptr aPart, CORBA::Double aDeflection, CORBA::Double aVolThreshold, CORBA::Double aMeshQuality) throw (SALOME::SALOME_Exception);
+    CORBA::Boolean             generateTetgenMesh(MCCAD_ORB::Part_ptr aPart, CORBA::Double aDeflection, CORBA::Double aVolThreshold, CORBA::Double aMeshQuality) throw (SALOME::SALOME_Exception);
+    CORBA::Boolean             generateNetgenMesh(MCCAD_ORB::Part_ptr aPart, CORBA::Double aDeflection, CORBA::Double aVolThreshold) throw (SALOME::SALOME_Exception);
     void                       MeshShape(const TopoDS_Shape aShape, double & theDeflection);
     void                       TessellateShape(const TopoDS_Shape theShape, vector <double> &PointList, vector <int> &FacetList, double & theDeflection);
 
