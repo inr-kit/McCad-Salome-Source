@@ -157,7 +157,30 @@ ATTENTION: In this following step you need to have Visual Studio 2010. Without i
 	
   * Behind the value of "Target", add " --module=MCCAD" or "--module=GEOM,SMESH,PARAVIS,MCCAD"(with a whitespace in the front). Click "OK". Next time you can start McCad with this short-cut link. 
 
+**************************************************************************************
+********Suggestions for further developing McCad********
+If you are going to make further development on this McCad version, here is some general suggestions for you.
+1. Make the development work on Linux system. Windows VisualStudio is NOT working well with the McCad project due to the complex SALOME environment variable configuration.
+2. Using QtCreator helps a lot modifying the source code. It provide very similar, or even better IDE environment for further development of McCad.
+3. Depending on what you are going to modify, you know knowledge of OpenCASCADE to change the McCad Kernel functions; CORBA communication technology, SALOME related programing for the GUI functions; CMAKE for compilation; and for all, C++ skill. 
 
+***Using QtCreator to develop McCad***
+
+After you compiled sucesfully once McCad in Linux, you can use QtCreator to open the CMAKE project of McCad. Before opening QtCreator, you have to register the environment variables of SALOME:
+	
+	source $SALOME/KERNEL_7.4.0/salome.sh
+	qtcreator
+Open the CmakeLists.txt under "MCCAD_SRC_0.5.1", the McCad project will be loaded automatically. To install the compilation correctly, you should specify the correct path to install the McCad binaries.
+
+  * click the QtCreator "Projects" button, in the "CMake arguments" linebox enter "-DCMAKE_INSTALL_PREFIX=$SALOME/MCCAD_0.5.1" (please change $SALOME to the actual folder). 
+
+You can now build the project by clicking menu "Build->Build All" or simiply "ctrl + B". However, You will not able to run SALOME from QtCreator, and you have to run SALOME in the way given in the previous section. Also,  you will not able to debug the problem, due to the conflict of GDB and python version used by SALOME. The mostly available way is to debug the running process "SALOME_Session_Server" in the system process list (use command "top" to get the pid in order to debug it). If you want to use QtCreator for the debugging, you should do the following steps which is not straight forward:
+
+   * open a new terminal, and run QtCreator WITHOUT executing the command "source $SALOME/KERNEL_7.4.0/salome.sh". It is important that QtCreator does not use the python from SALOME installation but use system provided python. 
+   * Open the same McCad project as you open above (do worry about the file synchronization). 
+   * Open menu "Debug"->"Start Debugging"->"Attach to Running Application". In the "Filter" linebox, enter "SALOME_Session_Server" and click the SALOME  process you invovke. You are now able to set the break point to debug. 
+   * the SALOME program is frozen because of the debugging, you have to press F5 in the debug QtCreator in order to make further operation.
+   
 
 **************************************************************************************
 For more information, you can find in our publications.
